@@ -1,3 +1,7 @@
+
+
+#include <boost/json.hpp>
+
 #include "shark/log.hpp"
 #include "shark/file/file.hpp"
 
@@ -212,4 +216,21 @@ std::string shark::file::tlm_node::print(
   }
 
   return ss.str();
+}
+
+boost::json::object shark::file::read_json(
+	std::string_view path)
+{
+	namespace json = boost::json;
+	auto raw = boost::json::parse(read(path));
+	return raw.as_object();
+}
+
+void shark::file::dump_json(
+	std::string_view path, const boost::json::object& js)
+{
+	namespace json = boost::json;
+	std::string pretty = boost::json::serialize(js);
+
+	std::ofstream(std::string(path)) << pretty;
 }

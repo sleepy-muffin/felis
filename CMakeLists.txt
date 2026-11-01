@@ -129,6 +129,11 @@ shark_add_module(
         src/toml.cpp
         src/json.cpp
         src/file/file.cpp
+        src/file/search.cpp
+
+        PUBLIC
+        Boost::json
+        Boost::regex
 )
 
 
@@ -155,8 +160,6 @@ if(SHARK_BUILD_NET)
             SOURCES
             src/net/http.cpp
             src/net/proxy.cpp
-            src/net/utils.cpp
-            src/file/search.cpp
 
             PUBLIC
             shark::common

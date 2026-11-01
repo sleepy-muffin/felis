@@ -7,6 +7,9 @@
 #include <string_view>
 #include <vector>
 
+#include <boost/json/array.hpp>
+#include <boost/json/object.hpp>
+
 namespace shark::file {
 class tlm_node {
   // Touhou Little Marks
@@ -59,5 +62,9 @@ tlm_node tlm_node_read(std::string_view path);
 
 // True when the file looks binary (a NUL byte in its first block).
 bool is_binary_file(const std::filesystem::path &path);
+
+
+boost::json::object read_json(std::string_view path);
+void dump_json(std::string_view path, const boost::json::object& js);
 
 }; // namespace shark::file
