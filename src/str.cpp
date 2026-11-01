@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 #include "shark/log.hpp"
 
@@ -406,3 +407,45 @@ std::string shark::str::indent(
   return result;
 }
 
+
+
+
+std::string shark::str::make_uuid() {
+  static thread_local std::mt19937_64 engine(std::random_device{}());
+  std::uniform_int_distribution<std::uint32_t> distribution(0, 0xFFFFFFFFu);
+
+  std::uint32_t parts[4];
+  for (auto& part : parts) {
+    part = distribution(engine);
+  }
+
+  // Set the version (4) and variant (RFC 4122) bits so this is a valid v4 UUID.
+  parts[1] = (parts[1] & 0xFFFF0FFFu) | 0x00004000u;
+  parts[2] = (parts[2] & 0x3FFFFFFFu) | 0x80000000u;
+
+  char buffer[37];
+  std::snprintf(
+    buffer, sizeof(buffer), "%08x-%04x-%04x-%04x-%04x%08x", parts[0],
+    (parts[1] >> 16) & 0xFFFFu, parts[1] & 0xFFFFu, (parts[2] >> 16) & 0xFFFFu,
+    parts[2] & 0xFFFFu, parts[3]
+  );
+  return buffer;
+}
+
+
+std::string shark::str::now_iso8601_utc() {
+  const auto now = std::chrono::system_clock::now();
+  const std::time_t seconds = std::chrono::system_clock::to_time_t(now);
+
+  std::tm broken_down{};
+#if defined(_WIN32)
+  gmtime_s(&broken_down, &seconds);
+#else
+  gmtime_r(&seconds, &broken_down);
+#endif
+
+  char buffer[32];
+  const std::size_t written =
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &broken_down);
+  return std::string(buffer, written);
+}

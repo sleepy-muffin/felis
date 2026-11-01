@@ -121,13 +121,16 @@ inline std::vector<std::string> split(const std::string& text, char delimiter) {
 	return result;
 }
 
-std::optional<std::string> trim(const std::string& s);
-unsigned short leading_space_count(const std::string& s);
-bool is_empty_or_whitespace(const std::string& s);
+[[nodiscard]] std::optional<std::string> trim(const std::string& s);
+[[nodiscard]] unsigned short leading_space_count(const std::string& s);
+[[nodiscard]] bool is_empty_or_whitespace(const std::string& s);
 void remove_whitespace(std::string& s);
 size_t utf8_codepoints(std::string_view s);
 size_t estimate_tokens(std::string_view s);
-std::string to_lower(const std::string& s);
+[[nodiscard]] std::string to_lower(const std::string& s);
+
+[[nodiscard]] std::string make_uuid();
+[[nodiscard]] std::string now_iso8601_utc();
 
 template<typename T>
 std::tuple<T, T> from_interval_text(std::string_view interval) {
