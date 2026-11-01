@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "shark/str.hpp"
+#include "shark/file/file.hpp"
 
 namespace shark::json {
 namespace {
