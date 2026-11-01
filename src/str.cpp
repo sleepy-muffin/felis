@@ -94,7 +94,7 @@ bool shark::str::is_empty_or_whitespace(const std::string &s) {
 //
 //   return std::string(start, end);
 // }
-std::string trim(const std::string &text) {
+std::string shark::str::trim(const std::string &text) {
   const auto not_space = [](unsigned char c) { return std::isspace(c) == 0; };
   const auto begin = std::find_if(text.begin(), text.end(), not_space);
   const auto end = std::find_if(text.rbegin(), text.rend(), not_space).base();
