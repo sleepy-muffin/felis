@@ -60,12 +60,17 @@ using HttpStatus = int;
 // Throws when the final status is not 2xx. `extra_headers` are merged over the
 // defaults (a header with the same name replaces the default), which lets a
 // caller present a browser User-Agent to sites that reject non-browser clients.
+//
+// `read_timeout_ms` bounds each wait for response headers or body bytes; 0 uses
+// the 20-second default. A local service that drives a real browser needs a
+// longer window, because its first answer includes starting that browser.
 [[nodiscard]] std::expected<std::string, HttpStatus> http_get_body(
     const std::string& url,
     const std::optional<std::string>& proxy,
     int max_bytes,
     std::stop_token stop = std::stop_token{},
-    const std::vector<HttpHeader>& extra_headers = {}
+    const std::vector<HttpHeader>& extra_headers = {},
+    int read_timeout_ms = 20'000
 );
 
 }

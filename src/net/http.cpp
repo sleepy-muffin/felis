@@ -815,7 +815,8 @@ int shark::net::http_request(
 
 std::expected<std::string, shark::net::HttpStatus> shark::net::http_get_body(
     const std::string& url, const std::optional<std::string>& proxy, int max_bytes,
-    std::stop_token stop, const std::vector<HttpHeader>& extra_headers
+    std::stop_token stop, const std::vector<HttpHeader>& extra_headers,
+    int read_timeout_ms
 ) {
   std::vector<HttpHeader> headers{
       {"User-Agent", "Mozilla/5.0 (compatible; local-notebook/1.0)"},
@@ -859,7 +860,8 @@ std::expected<std::string, shark::net::HttpStatus> shark::net::http_get_body(
   };
 
   const int status = http_request(
-      "GET", url, proxy, headers, "", stop, on_response, on_body, 20'000, 5
+      "GET", url, proxy, headers, "", stop, on_response, on_body, 20'000, 5,
+      read_timeout_ms
   );
 
   if (status < 200 || status >= 300) {
