@@ -73,6 +73,28 @@ inline std::vector<std::string> split(const std::string& text, char delimiter) {
 void remove_whitespace(std::string& s);
 size_t utf8_codepoints(std::string_view s);
 size_t estimate_tokens(std::string_view s);
+
+// --- UTF-8 guarding -----------------------------------------------------
+//
+// Byte-safe helpers used wherever text reaches a strict JSON wire. A fetched
+// page or a file read can carry bytes from another encoding, and cutting text at
+// a byte limit can split a multi-byte code point. Either way the request body
+// stops being valid UTF-8 and a strict server rejects the whole turn, so
+// everything that reaches the wire is passed through sanitize_utf8() and cut with
+// truncate_utf8(). Invalid bytes are treated as one byte each.
+
+// Byte length of the longest prefix of `text` that is at most `max_bytes` long
+// and ends on a code-point boundary.
+std::size_t utf8_cut_length(std::string_view text, std::size_t max_bytes);
+
+// `text` with every byte that is not part of a well-formed UTF-8 sequence
+// replaced by U+FFFD.
+std::string sanitize_utf8(std::string_view text);
+
+// The longest prefix of `text` that is at most `max_bytes` long and ends on a
+// code-point boundary. Unlike sanitize_utf8() it introduces no replacement
+// characters; use it to truncate text that is already valid UTF-8.
+std::string truncate_utf8(std::string_view text, std::size_t max_bytes);
 [[nodiscard]] std::string to_lower(const std::string& s);
 
 [[nodiscard]] std::string make_uuid();
