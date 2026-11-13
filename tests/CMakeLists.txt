@@ -17,7 +17,7 @@ target_include_directories(
 target_link_libraries(
   http-timeout-test
   PRIVATE
-    shark::net
+    felis::net
     Threads::Threads
 )
 
@@ -37,7 +37,7 @@ target_include_directories(
 target_link_libraries(
   http-headers-test
   PRIVATE
-    shark::net
+    felis::net
     Threads::Threads
 )
 
@@ -56,7 +56,7 @@ add_executable(
 target_link_libraries(
   json-test
   PRIVATE
-    shark::common
+    felis::common
 )
 
 add_test(NAME json COMMAND json-test)

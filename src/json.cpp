@@ -1,4 +1,4 @@
-#include "shark/json.hpp"
+#include "felis/json.hpp"
 
 #include <charconv>
 #include <cmath>
@@ -11,9 +11,9 @@
 #include <type_traits>
 #include <utility>
 
-#include "shark/file/file.hpp"
+#include "felis/file/file.hpp"
 
-namespace shark::json {
+namespace felis::json {
 namespace {
 
 class parser {
@@ -374,7 +374,7 @@ value parse(std::string_view text) {
 }
 
 value loads(std::string_view path) {
-  return parse(shark::file::read(path));
+  return parse(felis::file::read(path));
 }
 
 std::string dumps(const value& item, int indentation) {
@@ -565,4 +565,4 @@ bool array::empty() const {
   return values_.empty();
 }
 
-} // namespace shark::json
+} // namespace felis::json

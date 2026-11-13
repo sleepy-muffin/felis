@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-namespace shark::media
+namespace felis::media
 {
 
 enum class sample_encoding {
@@ -243,11 +243,11 @@ struct Result
 };
 
 options preset_config(const std::string& name);
-Result process(shark::media::decoded_pcm& audio, const options& config);
+Result process(felis::media::decoded_pcm& audio, const options& config);
 const char* to_string(event_kind kind);
 const char* to_string(repair_mode mode);
 repair_mode parse_repair_mode(const std::string& name);
 
 } // namespace declick
 
-} // namespace shark::media
+} // namespace felis::media

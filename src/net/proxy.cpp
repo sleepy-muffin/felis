@@ -1,4 +1,4 @@
-#include "shark/net/proxy.hpp"
+#include "felis/net/proxy.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -20,7 +20,7 @@ std::string to_lower(std::string text) {
 // an IPv6 literal in brackets, or a host name; only the last colon is treated as
 // the host/port separator, which keeps IPv6 literals intact.
 void apply_host_port(
-    shark::net::Proxy& proxy, const std::string& spec, std::string endpoint
+    felis::net::Proxy& proxy, const std::string& spec, std::string endpoint
 ) {
   // Strip optional credentials ("user:password@") from the authority.
   std::string credentials;
@@ -73,7 +73,7 @@ void apply_host_port(
 
 } // namespace
 
-shark::net::Proxy shark::net::parse_proxy(const std::string& spec) {
+felis::net::Proxy felis::net::parse_proxy(const std::string& spec) {
   if (spec.empty()) {
     throw std::runtime_error("Empty proxy address");
   }

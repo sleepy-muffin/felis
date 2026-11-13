@@ -15,9 +15,9 @@
 #include <string>
 #include <vector>
 
-#include "shark/common.hpp"
+#include "felis/common.hpp"
 
-namespace shark::str {
+namespace felis::str {
 std::string replace(std::string_view input, std::string_view from, std::string_view to);
 
 inline std::vector<std::string> split(const std::string& text) {
@@ -89,4 +89,4 @@ void forcibly_print_vector(const std::vector<std::string>& input);
 void indented_print(std::string_view s, char c = ' ', int n = 4);
 std::string indent(std::string_view s, char c = ' ', int n = 4);
 
-} // namespace shark::str
+} // namespace felis::str

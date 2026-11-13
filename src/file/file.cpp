@@ -2,23 +2,23 @@
 
 #include <boost/json.hpp>
 
-#include "shark/log.hpp"
-#include "shark/file/file.hpp"
+#include "felis/log.hpp"
+#include "felis/file/file.hpp"
 
-std::string shark::file::read(
+std::string felis::file::read(
   std::string_view path
 ) {
   // Warning std::string_view is not null-terminated guaranteed.
   std::ifstream file(std::string(path), std::ios::in | std::ios::binary);
   if (!file.is_open()) {
-    shark::raise("Cannot open file: {}", path);
+    felis::raise("Cannot open file: {}", path);
   }
 
   std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
   return str;
 }
 
-std::vector<char> shark::file::read_binary(
+std::vector<char> felis::file::read_binary(
   const std::string& filename
 ) {
   std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -31,11 +31,11 @@ std::vector<char> shark::file::read_binary(
   return buffer;
 }
 
-shark::file::tlm_node shark::file::tlm_node_read(
+felis::file::tlm_node felis::file::tlm_node_read(
   std::string_view file_path
 ) {
   const std::string identifier = "=^..^= ";
-  std::string ctx = shark::file::read(file_path);
+  std::string ctx = felis::file::read(file_path);
 
   decltype(ctx)::iterator ctx_begin = ctx.begin();
 
@@ -110,7 +110,7 @@ shark::file::tlm_node shark::file::tlm_node_read(
   return node;
 }
 
-bool shark::file::is_binary_file(const std::filesystem::path& path) {
+bool felis::file::is_binary_file(const std::filesystem::path& path) {
   // A file counts as binary when a NUL byte appears in its first block. This is
   // the same convention git and ripgrep use, and it lets search_code cover
   // every text language without maintaining an extension whitelist.
@@ -128,7 +128,7 @@ bool shark::file::is_binary_file(const std::filesystem::path& path) {
 }
 
 
-std::string shark::file::tlm_node::print(
+std::string felis::file::tlm_node::print(
   unsigned short indent
 ) const {
   std::ostringstream ss;
@@ -218,7 +218,7 @@ std::string shark::file::tlm_node::print(
   return ss.str();
 }
 
-boost::json::object shark::file::read_json(
+boost::json::object felis::file::read_json(
 	std::string_view path)
 {
 	namespace json = boost::json;
@@ -226,7 +226,7 @@ boost::json::object shark::file::read_json(
 	return raw.as_object();
 }
 
-void shark::file::dump_json(
+void felis::file::dump_json(
 	std::string_view path, const boost::json::object& js)
 {
 	namespace json = boost::json;

@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace shark::net {
+namespace felis::net {
 
 struct HttpHeader {
   std::string name;

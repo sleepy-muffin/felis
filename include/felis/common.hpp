@@ -8,17 +8,17 @@
 
 #define MMC_EXPORT
 
-#if !defined(SHARK_FUNCTION)
+#if !defined(FELIS_FUNCTION)
 #if defined(_MSC_VER)
 
-#define SHARK_FUNCTION __FUNCTION__
+#define FELIS_FUNCTION __FUNCTION__
 #elif defined(__GNUC__) || defined(__clang__)
-#define SHARK_FUNCTION __PRETTY_FUNCTION__
+#define FELIS_FUNCTION __PRETTY_FUNCTION__
 #endif
 #endif
 
-namespace shark {
-constexpr bool SHARK_DEBUG = false;
+namespace felis {
+constexpr bool FELIS_DEBUG = false;
 
 template<class>
 struct function_traits;

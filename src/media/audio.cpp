@@ -1,13 +1,13 @@
 /*
- * Project: shark
- * Repository: https://github.com/leaked32/shark
+ * Project: felis
+ * Repository: https://github.com/leaked32/felis
  *
- * File: shark/src/audio.cpp
+ * File: felis/src/audio.cpp
  *
  * License: MIT
  */
 
-#include "shark/media/audio.hpp"
+#include "felis/media/audio.hpp"
 
 #include <algorithm>
 #include <array>
@@ -145,7 +145,7 @@ namespace
 
 struct wav_layout
 {
-	shark::media::decoded_pcm format;
+	felis::media::decoded_pcm format;
 	std::uint16_t block_align = 0;
 	std::size_t bytes_per_sample = 0;
 	std::size_t data_offset = 0;
@@ -245,8 +245,8 @@ wav_layout read_wav_layout(
 	wav_layout result;
 	result.format.sample_rate = sample_rate;
 	result.format.channels = channels;
-	result.format.encoding = format_tag == 1U ? shark::media::sample_encoding::pcm_integer
-											  : shark::media::sample_encoding::ieee_float;
+	result.format.encoding = format_tag == 1U ? felis::media::sample_encoding::pcm_integer
+											  : felis::media::sample_encoding::ieee_float;
 	result.format.bits_per_sample = bits;
 	result.format.valid_bits_per_sample = valid_bits == 0 ? bits : valid_bits;
 	result.block_align = block_align;
@@ -259,7 +259,7 @@ wav_layout read_wav_layout(
 double decode_wav_sample(
 	const std::uint8_t* p, const wav_layout& layout)
 {
-	if (layout.format.encoding == shark::media::sample_encoding::pcm_integer) {
+	if (layout.format.encoding == felis::media::sample_encoding::pcm_integer) {
 		switch (layout.format.bits_per_sample) {
 		case 8:
 			return (static_cast<int>(p[0]) - 128) / 128.0;
@@ -289,10 +289,10 @@ double decode_wav_sample(
 }
 
 void write_wav_sample(
-	std::ostream& out, double value, const shark::media::decoded_pcm& format)
+	std::ostream& out, double value, const felis::media::decoded_pcm& format)
 {
 	value = std::clamp(finite_or_zero(value), -1.0, 1.0);
-	if (format.encoding == shark::media::sample_encoding::pcm_integer) {
+	if (format.encoding == felis::media::sample_encoding::pcm_integer) {
 		switch (format.bits_per_sample) {
 		case 8:
 			out.put(static_cast<char>(
@@ -337,14 +337,14 @@ void write_wav_sample(
 
 } // namespace
 
-struct shark::media::wav_reader::state
+struct felis::media::wav_reader::state
 {
 	std::ifstream input;
 	wav_layout layout;
 	std::size_t remaining_frames = 0;
 };
 
-shark::media::wav_reader::wav_reader(
+felis::media::wav_reader::wav_reader(
 	const std::filesystem::path& path) : state_(std::make_unique<state>())
 {
 	state_->input.open(path, std::ios::binary);
@@ -357,19 +357,19 @@ shark::media::wav_reader::wav_reader(
 	state_->input.seekg(static_cast<std::streamoff>(state_->layout.data_offset));
 }
 
-shark::media::wav_reader::~wav_reader() = default;
+felis::media::wav_reader::~wav_reader() = default;
 
-const shark::media::decoded_pcm& shark::media::wav_reader::format() const
+const felis::media::decoded_pcm& felis::media::wav_reader::format() const
 {
 	return state_->layout.format;
 }
 
-std::size_t shark::media::wav_reader::total_frames() const
+std::size_t felis::media::wav_reader::total_frames() const
 {
 	return state_->layout.data_size / state_->layout.block_align;
 }
 
-shark::media::decoded_pcm shark::media::wav_reader::read_frames(
+felis::media::decoded_pcm felis::media::wav_reader::read_frames(
 	std::size_t maximum_frames)
 {
 	const std::size_t frames = std::min(maximum_frames, state_->remaining_frames);
@@ -390,7 +390,7 @@ shark::media::decoded_pcm shark::media::wav_reader::read_frames(
 	return result;
 }
 
-struct shark::media::wav_writer::state
+struct felis::media::wav_writer::state
 {
 	std::ofstream output;
 	decoded_pcm format;
@@ -399,7 +399,7 @@ struct shark::media::wav_writer::state
 	bool finished = false;
 };
 
-shark::media::wav_writer::wav_writer(
+felis::media::wav_writer::wav_writer(
 	const std::filesystem::path& path, const decoded_pcm& format) :
 	state_(std::make_unique<state>())
 {
@@ -439,7 +439,7 @@ shark::media::wav_writer::wav_writer(
 	put_u32(state_->output, 0);
 }
 
-shark::media::wav_writer::~wav_writer()
+felis::media::wav_writer::~wav_writer()
 {
 	try {
 		finish();
@@ -447,7 +447,7 @@ shark::media::wav_writer::~wav_writer()
 	}
 }
 
-void shark::media::wav_writer::write_frames(
+void felis::media::wav_writer::write_frames(
 	const decoded_pcm& audio)
 {
 	if (state_->finished || audio.sample_rate != state_->format.sample_rate ||
@@ -469,7 +469,7 @@ void shark::media::wav_writer::write_frames(
 	state_->data_size += bytes;
 }
 
-void shark::media::wav_writer::finish()
+void felis::media::wav_writer::finish()
 {
 	if (!state_ || state_->finished) {
 		return;
@@ -486,7 +486,7 @@ void shark::media::wav_writer::finish()
 	state_->finished = true;
 }
 
-shark::media::decoded_pcm shark::media::read_wav(
+felis::media::decoded_pcm felis::media::read_wav(
 	const std::filesystem::path& path)
 {
 	const auto bytes = read_all(path);
@@ -620,7 +620,7 @@ shark::media::decoded_pcm shark::media::read_wav(
 	return audio;
 }
 
-void shark::media::write_wav(
+void felis::media::write_wav(
 	const std::filesystem::path& path, const decoded_pcm& audio)
 {
 	if (audio.channels == 0 || audio.sample_rate == 0) {
@@ -729,7 +729,7 @@ void shark::media::write_wav(
 	}
 }
 
-shark::media::decoded_pcm shark::media::read_opus(
+felis::media::decoded_pcm felis::media::read_opus(
 	const std::filesystem::path& path)
 {
 	opus_reader reader(path);
@@ -744,7 +744,7 @@ shark::media::decoded_pcm shark::media::read_opus(
 	return audio;
 }
 
-void shark::media::write_opus(
+void felis::media::write_opus(
 	const std::filesystem::path& path, const decoded_pcm& audio)
 {
 	opus_writer writer(path, audio);
@@ -752,13 +752,13 @@ void shark::media::write_opus(
 	writer.finish();
 }
 
-struct shark::media::opus_reader::state
+struct felis::media::opus_reader::state
 {
 	OggOpusFile* file = nullptr;
 	decoded_pcm format;
 };
 
-shark::media::opus_reader::opus_reader(
+felis::media::opus_reader::opus_reader(
 	const std::filesystem::path& path) : state_(std::make_unique<state>())
 {
 	int error = 0;
@@ -779,25 +779,25 @@ shark::media::opus_reader::opus_reader(
 	state_->format.valid_bits_per_sample = 32;
 }
 
-shark::media::opus_reader::~opus_reader()
+felis::media::opus_reader::~opus_reader()
 {
 	if (state_ && state_->file) {
 		op_free(state_->file);
 	}
 }
 
-const shark::media::decoded_pcm& shark::media::opus_reader::format() const
+const felis::media::decoded_pcm& felis::media::opus_reader::format() const
 {
 	return state_->format;
 }
 
-std::size_t shark::media::opus_reader::total_frames() const
+std::size_t felis::media::opus_reader::total_frames() const
 {
 	const opus_int64 frames = op_pcm_total(state_->file, -1);
 	return frames > 0 ? static_cast<std::size_t>(frames) : 0;
 }
 
-shark::media::decoded_pcm shark::media::opus_reader::read_frames(
+felis::media::decoded_pcm felis::media::opus_reader::read_frames(
 	std::size_t maximum_frames)
 {
 	if (maximum_frames == 0) {
@@ -819,7 +819,7 @@ shark::media::decoded_pcm shark::media::opus_reader::read_frames(
 	return result;
 }
 
-struct shark::media::opus_writer::state
+struct felis::media::opus_writer::state
 {
 	OggOpusEnc* encoder = nullptr;
 	OggOpusComments* comments = nullptr;
@@ -828,7 +828,7 @@ struct shark::media::opus_writer::state
 	bool finished = false;
 };
 
-shark::media::opus_writer::opus_writer(
+felis::media::opus_writer::opus_writer(
 	const std::filesystem::path& path, const decoded_pcm& format, std::size_t bitrate) :
 	state_(std::make_unique<state>())
 {
@@ -855,7 +855,7 @@ shark::media::opus_writer::opus_writer(
 	state_->channels = format.channels;
 }
 
-shark::media::opus_writer::~opus_writer()
+felis::media::opus_writer::~opus_writer()
 {
 	if (state_ && state_->encoder) {
 		if (!state_->finished) {
@@ -868,7 +868,7 @@ shark::media::opus_writer::~opus_writer()
 	}
 }
 
-void shark::media::opus_writer::write_frames(
+void felis::media::opus_writer::write_frames(
 	const decoded_pcm& audio)
 {
 	if (state_->finished || audio.sample_rate != state_->sample_rate ||
@@ -887,7 +887,7 @@ void shark::media::opus_writer::write_frames(
 	}
 }
 
-void shark::media::opus_writer::finish()
+void felis::media::opus_writer::finish()
 {
 	if (!state_->finished) {
 		if (ope_encoder_drain(state_->encoder) != OPE_OK) {
@@ -897,14 +897,14 @@ void shark::media::opus_writer::finish()
 	}
 }
 
-struct shark::media::mp3_reader::state
+struct felis::media::mp3_reader::state
 {
 	mpg123_handle* decoder = nullptr;
 	decoded_pcm format;
 	bool finished = false;
 };
 
-shark::media::mp3_reader::mp3_reader(const std::filesystem::path& path) :
+felis::media::mp3_reader::mp3_reader(const std::filesystem::path& path) :
 	state_(std::make_unique<state>())
 {
 	static const int initialized = [] { return mpg123_init(); }();
@@ -932,20 +932,20 @@ shark::media::mp3_reader::mp3_reader(const std::filesystem::path& path) :
 		sample_encoding::ieee_float, 32, 32, {}};
 }
 
-shark::media::mp3_reader::~mp3_reader()
+felis::media::mp3_reader::~mp3_reader()
 {
 	if (state_ && state_->decoder) {
 		mpg123_close(state_->decoder);
 		mpg123_delete(state_->decoder);
 	}
 }
-const shark::media::decoded_pcm& shark::media::mp3_reader::format() const { return state_->format; }
-std::size_t shark::media::mp3_reader::total_frames() const
+const felis::media::decoded_pcm& felis::media::mp3_reader::format() const { return state_->format; }
+std::size_t felis::media::mp3_reader::total_frames() const
 {
 	const off_t frames = mpg123_length(state_->decoder);
 	return frames > 0 ? static_cast<std::size_t>(frames) : 0;
 }
-shark::media::decoded_pcm shark::media::mp3_reader::read_frames(std::size_t maximum_frames)
+felis::media::decoded_pcm felis::media::mp3_reader::read_frames(std::size_t maximum_frames)
 {
 	decoded_pcm result = state_->format;
 	if (maximum_frames == 0 || state_->finished) return result;
@@ -961,7 +961,7 @@ shark::media::decoded_pcm shark::media::mp3_reader::read_frames(std::size_t maxi
 	return result;
 }
 
-struct shark::media::mp3_writer::state
+struct felis::media::mp3_writer::state
 {
 	lame_t encoder = nullptr;
 	std::uint32_t sample_rate = 0;
@@ -969,7 +969,7 @@ struct shark::media::mp3_writer::state
 	std::ofstream output;
 	bool finished = false;
 };
-shark::media::mp3_writer::mp3_writer(
+felis::media::mp3_writer::mp3_writer(
 	const std::filesystem::path& path, const decoded_pcm& format, std::size_t bitrate) :
 	state_(std::make_unique<state>())
 {
@@ -992,12 +992,12 @@ shark::media::mp3_writer::mp3_writer(
 	state_->sample_rate = format.sample_rate;
 	state_->channels = format.channels;
 }
-shark::media::mp3_writer::~mp3_writer()
+felis::media::mp3_writer::~mp3_writer()
 {
 	try { finish(); } catch (...) {}
 	if (state_ && state_->encoder) lame_close(state_->encoder);
 }
-void shark::media::mp3_writer::write_frames(const decoded_pcm& audio)
+void felis::media::mp3_writer::write_frames(const decoded_pcm& audio)
 {
 	if (state_->finished || audio.sample_rate != state_->sample_rate ||
 		audio.channels != state_->channels || audio.frames() > static_cast<std::size_t>(
@@ -1012,7 +1012,7 @@ void shark::media::mp3_writer::write_frames(const decoded_pcm& audio)
 	state_->output.write(reinterpret_cast<const char*>(encoded.data()), bytes);
 	if (!state_->output) throw std::runtime_error("failed while writing MP3");
 }
-void shark::media::mp3_writer::finish()
+void felis::media::mp3_writer::finish()
 {
 	if (!state_ || state_->finished) return;
 	std::array<unsigned char, 7200> encoded{};
@@ -1023,7 +1023,7 @@ void shark::media::mp3_writer::finish()
 	state_->finished = true;
 }
 
-shark::media::decoded_pcm shark::media::read_audio(
+felis::media::decoded_pcm felis::media::read_audio(
 	const std::filesystem::path& path)
 {
 	const auto ext = path.extension().string();
@@ -1048,17 +1048,17 @@ shark::media::decoded_pcm shark::media::read_audio(
 	throw std::runtime_error("unsupported audio format: " + ext);
 }
 
-void shark::media::write_audio(
+void felis::media::write_audio(
 	const std::filesystem::path& path, const decoded_pcm& audio)
 {
 	const auto ext = path.extension().string();
 
 	if (ext == ".opus" || ext == ".OPUS") {
-		shark::media::write_opus(path, audio);
+		felis::media::write_opus(path, audio);
 		return;
 	}
 	if (ext == ".wav" || ext == ".WAV") {
-		shark::media::write_wav(path, audio);
+		felis::media::write_wav(path, audio);
 		return;
 	}
 	if (ext == ".mp3" || ext == ".MP3") {
@@ -1167,7 +1167,7 @@ std::optional<Model> fit_model(
 
 std::vector<double> predict(
 	const std::vector<double>& context, std::size_t count,
-	const shark::media::declick::lpc_options& config)
+	const felis::media::declick::lpc_options& config)
 {
 	std::vector<double> result(count, 0.0);
 	const auto model =
@@ -1285,7 +1285,7 @@ std::vector<double> nearby_context(
 
 } // namespace
 
-std::vector<double> shark::media::declick::reconstruct_gap_cubic(
+std::vector<double> felis::media::declick::reconstruct_gap_cubic(
 	const std::vector<double>& signal, std::size_t begin, std::size_t end)
 {
 	if (begin >= end || end > signal.size()) {
@@ -1294,7 +1294,7 @@ std::vector<double> shark::media::declick::reconstruct_gap_cubic(
 	return cubic_bridge(signal, begin, end);
 }
 
-std::vector<double> shark::media::declick::reconstruct_gap_lpc(
+std::vector<double> felis::media::declick::reconstruct_gap_lpc(
 	const std::vector<double>& signal, std::size_t begin, std::size_t end,
 	const lpc_options& config)
 {
@@ -1335,7 +1335,7 @@ std::vector<double> shark::media::declick::reconstruct_gap_lpc(
 	return result;
 }
 
-std::vector<double> shark::media::declick::reconstruct_gap_hybrid(
+std::vector<double> felis::media::declick::reconstruct_gap_hybrid(
 	const std::vector<double>& signal, std::size_t begin, std::size_t end,
 	const lpc_options& config)
 {
@@ -1402,10 +1402,10 @@ double median_abs(
 // 	return x * x * (3.0 - 2.0 * x);
 // }
 
-shark::media::declick::event_kind merge_kind(
-	shark::media::declick::event_kind a, shark::media::declick::event_kind b)
+felis::media::declick::event_kind merge_kind(
+	felis::media::declick::event_kind a, felis::media::declick::event_kind b)
 {
-	return a == b ? a : shark::media::declick::event_kind::mixed;
+	return a == b ? a : felis::media::declick::event_kind::mixed;
 }
 
 struct candidate
@@ -1414,13 +1414,13 @@ struct candidate
 	std::size_t core_end = 0;
 	std::size_t repair_begin = 0;
 	std::size_t repair_end = 0;
-	shark::media::declick::event_kind kind = shark::media::declick::event_kind::impulse;
+	felis::media::declick::event_kind kind = felis::media::declick::event_kind::impulse;
 	double score = 0.0;
 };
 
 std::vector<candidate> detect_channel(
 	const std::vector<double>& signal, std::uint32_t sample_rate,
-	const shark::media::declick::options& config, std::size_t& clipped_seed_frames,
+	const felis::media::declick::options& config, std::size_t& clipped_seed_frames,
 	std::size_t& impulse_seed_frames)
 {
 	const std::size_t n = signal.size();
@@ -1520,9 +1520,9 @@ std::vector<candidate> detect_channel(
 		candidate candidate;
 		candidate.core_begin = begin;
 		candidate.core_end = end;
-		candidate.kind = has_clip && has_impulse ? shark::media::declick::event_kind::mixed
-			: has_clip							 ? shark::media::declick::event_kind::clipped
-												 : shark::media::declick::event_kind::impulse;
+		candidate.kind = has_clip && has_impulse ? felis::media::declick::event_kind::mixed
+			: has_clip							 ? felis::media::declick::event_kind::clipped
+												 : felis::media::declick::event_kind::impulse;
 		candidate.score = max_score;
 		candidates.push_back(candidate);
 	}
@@ -1577,7 +1577,7 @@ double peak_in_range(
 
 } // namespace
 
-shark::media::declick::options shark::media::declick::preset_config(
+felis::media::declick::options felis::media::declick::preset_config(
 	const std::string& name)
 {
 	options config;
@@ -1622,8 +1622,8 @@ shark::media::declick::options shark::media::declick::preset_config(
 	throw std::invalid_argument("unknown preset: " + name);
 }
 
-shark::media::declick::Result shark::media::declick::process(
-	shark::media::decoded_pcm& audio, const options& config)
+felis::media::declick::Result felis::media::declick::process(
+	felis::media::decoded_pcm& audio, const options& config)
 {
 	if (audio.channels == 0 || audio.sample_rate == 0) {
 		throw std::invalid_argument("invalid audio buffer");
@@ -1744,7 +1744,7 @@ shark::media::declick::Result shark::media::declick::process(
 	return result;
 }
 
-const char* shark::media::declick::to_string(
+const char* felis::media::declick::to_string(
 	event_kind kind)
 {
 	switch (kind) {
@@ -1758,7 +1758,7 @@ const char* shark::media::declick::to_string(
 	return "unknown";
 }
 
-const char* shark::media::declick::to_string(
+const char* felis::media::declick::to_string(
 	repair_mode mode)
 {
 	switch (mode) {
@@ -1772,7 +1772,7 @@ const char* shark::media::declick::to_string(
 	return "unknown";
 }
 
-shark::media::declick::repair_mode shark::media::declick::parse_repair_mode(
+felis::media::declick::repair_mode felis::media::declick::parse_repair_mode(
 	const std::string& name)
 {
 	if (name == "cubic") {

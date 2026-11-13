@@ -1,6 +1,6 @@
 
-#include "shark/net/proxy.hpp"
-#include "shark/net/http.hpp"
+#include "felis/net/proxy.hpp"
+#include "felis/net/http.hpp"
 
 
 #include <boost/asio/buffer.hpp>
@@ -335,7 +335,7 @@ void socks_read(tcp::socket& socket, char* data, std::size_t size,
 }
 
 void socks5_handshake(tcp::socket& socket, const parsed_url& target,
-                      const shark::net::Proxy& proxy, asio::io_context& ioc,
+                      const felis::net::Proxy& proxy, asio::io_context& ioc,
                       std::stop_token stop, int timeout_ms) {
   std::string greeting;
   greeting.push_back(0x05);
@@ -430,7 +430,7 @@ void socks5_handshake(tcp::socket& socket, const parsed_url& target,
 }
 
 void http_connect_handshake(tcp::socket& socket, const parsed_url& target,
-                            const shark::net::Proxy& proxy, asio::io_context& ioc,
+                            const felis::net::Proxy& proxy, asio::io_context& ioc,
                             std::stop_token stop, int timeout_ms) {
   const std::string authority = target.host + ":" + target.port;
 
@@ -474,7 +474,7 @@ void http_connect_handshake(tcp::socket& socket, const parsed_url& target,
 }
 
 beast::tcp_stream connect_stream(
-    asio::io_context& ioc, const parsed_url& target, const shark::net::Proxy* proxy,
+    asio::io_context& ioc, const parsed_url& target, const felis::net::Proxy* proxy,
     std::stop_token stop, int timeout_ms
 ) {
   const std::string connect_host = proxy != nullptr ? proxy->host : target.host;
@@ -539,7 +539,7 @@ beast::tcp_stream connect_stream(
   stream.expires_never();
 
   if (proxy != nullptr) {
-    if (proxy->type == shark::net::Proxy::Type::Socks5) {
+    if (proxy->type == felis::net::Proxy::Type::Socks5) {
       socks5_handshake(stream.socket(), target, *proxy, ioc, stop, timeout_ms);
     } else if (target.tls()) {
       http_connect_handshake(stream.socket(), target, *proxy, ioc, stop, timeout_ms);
@@ -561,12 +561,12 @@ http::verb verb_for(std::string_view method) {
 template<typename Stream>
 int do_request(
     Stream& stream, const parsed_url& target, std::string_view method,
-    const std::vector<shark::net::HttpHeader>& headers, const std::string& body,
+    const std::vector<felis::net::HttpHeader>& headers, const std::string& body,
     bool absolute_form, std::stop_token stop, int write_timeout_ms,
-    int read_timeout_ms, const shark::net::ResponseHandler& on_response,
-    const shark::net::BodyHandler& on_body, asio::io_context& ioc
+    int read_timeout_ms, const felis::net::ResponseHandler& on_response,
+    const felis::net::BodyHandler& on_body, asio::io_context& ioc
 ) {
-  using namespace shark::net;
+  using namespace felis::net;
 
   http::request<http::string_body> request;
   request.method(verb_for(method));
@@ -677,7 +677,7 @@ int do_request(
 
 } // namespace
 
-int shark::net::http_request(
+int felis::net::http_request(
     std::string_view method, const std::string& url,
     const std::optional<std::string>& proxy_spec,
     const std::vector<HttpHeader>& headers, const std::string& body,
@@ -685,10 +685,10 @@ int shark::net::http_request(
     const BodyHandler& on_body, int inactivity_timeout_ms, int max_redirects,
     int read_timeout_ms
 ) {
-  std::optional<shark::net::Proxy> proxy;
+  std::optional<felis::net::Proxy> proxy;
 
   if (proxy_spec.has_value() && !proxy_spec->empty()) {
-    proxy = shark::net::parse_proxy(*proxy_spec);
+    proxy = felis::net::parse_proxy(*proxy_spec);
   }
 
   // A zero read window means the caller wants the transport window for both
@@ -739,7 +739,7 @@ int shark::net::http_request(
     // An http URL through an HTTP proxy is sent in absolute form on the proxy
     // connection; every other combination is tunnelled to the origin first.
     const bool absolute_form = proxy.has_value() &&
-        proxy->type == shark::net::Proxy::Type::Http && !target.tls();
+        proxy->type == felis::net::Proxy::Type::Http && !target.tls();
 
     int status = 0;
     std::string location;
@@ -813,7 +813,7 @@ int shark::net::http_request(
   }
 }
 
-std::expected<std::string, shark::net::HttpStatus> shark::net::http_get_body(
+std::expected<std::string, felis::net::HttpStatus> felis::net::http_get_body(
     const std::string& url, const std::optional<std::string>& proxy, int max_bytes,
     std::stop_token stop, const std::vector<HttpHeader>& extra_headers,
     int read_timeout_ms

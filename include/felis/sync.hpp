@@ -9,9 +9,9 @@
 #include <mutex>
 #include <vector>
 
-#include "shark/common.hpp"
+#include "felis/common.hpp"
 
-namespace shark
+namespace felis
 {
 
 template <typename T>

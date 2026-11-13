@@ -1,25 +1,25 @@
 /*
- * Project: shark
- * Repository: https://github.com/leaked32/shark
+ * Project: felis
+ * Repository: https://github.com/leaked32/felis
  *
- * File: shark/src/str.cpp
+ * File: felis/src/str.cpp
  *
  * License: MIT
  */
 
-#include "shark/str.hpp"
+#include "felis/str.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <random>
 
-#include "shark/log.hpp"
+#include "felis/log.hpp"
 
 #include <fstream>
 #include <sstream>
 
 std::string
-shark::str::replace(std::string_view input, std::string_view from, std::string_view to) {
+felis::str::replace(std::string_view input, std::string_view from, std::string_view to) {
   using T = decltype(input);
 
   const size_t len_from = from.size();
@@ -72,11 +72,11 @@ shark::str::replace(std::string_view input, std::string_view from, std::string_v
   return output;
 }
 
-bool shark::str::is_empty_or_whitespace(const std::string &s) {
+bool felis::str::is_empty_or_whitespace(const std::string &s) {
   return std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isspace(c); });
 }
 
-// std::optional<std::string> shark::str::trim(const std::string &s) {
+// std::optional<std::string> felis::str::trim(const std::string &s) {
 //   if (std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isspace(c); })) {
 //     return {};
 //   }
@@ -94,7 +94,7 @@ bool shark::str::is_empty_or_whitespace(const std::string &s) {
 //
 //   return std::string(start, end);
 // }
-std::string shark::str::trim(const std::string &text) {
+std::string felis::str::trim(const std::string &text) {
   const auto not_space = [](unsigned char c) { return std::isspace(c) == 0; };
   const auto begin = std::find_if(text.begin(), text.end(), not_space);
   const auto end = std::find_if(text.rbegin(), text.rend(), not_space).base();
@@ -106,7 +106,7 @@ std::string shark::str::trim(const std::string &text) {
   return std::string(begin, end);
 }
 
-unsigned short shark::str::leading_space_count(const std::string &s) {
+unsigned short felis::str::leading_space_count(const std::string &s) {
   unsigned short count = 0;
   auto start =
       std::find_if_not(s.begin(), s.end(), [&count](unsigned char c) { return std::isspace(c); });
@@ -114,13 +114,13 @@ unsigned short shark::str::leading_space_count(const std::string &s) {
   return count;
 }
 
-void shark::str::remove_whitespace(std::string &s) {
+void felis::str::remove_whitespace(std::string &s) {
   s.erase(
       std::remove_if(s.begin(), s.end(), [](unsigned char c) { return std::isspace(c); }), s.end());
 }
 
 
-size_t shark::str::utf8_codepoints(std::string_view s) {
+size_t felis::str::utf8_codepoints(std::string_view s) {
   size_t count = 0;
 
   for (unsigned char c: s) {
@@ -133,7 +133,7 @@ size_t shark::str::utf8_codepoints(std::string_view s) {
 
 // ASCII lower-case, used by the smart-case search. A locale-independent fold
 // keeps the matching behaviour stable across platforms.
-std::string shark::str::to_lower(const std::string &s) {
+std::string felis::str::to_lower(const std::string &s) {
   std::string result = s;
   std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
     return std::tolower(c);
@@ -141,7 +141,7 @@ std::string shark::str::to_lower(const std::string &s) {
   return result;
 }
 
-size_t shark::str::estimate_tokens(std::string_view s) {
+size_t felis::str::estimate_tokens(std::string_view s) {
   size_t ascii = 0;
   size_t non_ascii_chars = 0;
 
@@ -156,7 +156,7 @@ size_t shark::str::estimate_tokens(std::string_view s) {
 }
 
 
-void shark::str::forcibly_print_vector(const std::vector<std::string> &input) {
+void felis::str::forcibly_print_vector(const std::vector<std::string> &input) {
   // std::cout << "\tdebug forcely_print_vector: ";
   for (size_t i = 0; i < input.size(); ++i) {
     // std::cout << i << ":";
@@ -166,7 +166,7 @@ void shark::str::forcibly_print_vector(const std::vector<std::string> &input) {
   // std::cout << std::endl;
 }
 
-void shark::str::forcibly_print_string(const std::string &input) {
+void felis::str::forcibly_print_string(const std::string &input) {
   // std::cout << "";
   for (size_t i = 0; i < input.size(); ++i) {
     std::cout << (char) (*(input.data() + i));
@@ -175,9 +175,9 @@ void shark::str::forcibly_print_string(const std::string &input) {
 }
 
 
-void shark::str::indented_print(std::string_view s, char c, int n) {}
+void felis::str::indented_print(std::string_view s, char c, int n) {}
 
-std::string shark::str::indent(std::string_view s, char c, int n) {
+std::string felis::str::indent(std::string_view s, char c, int n) {
   if (s.empty() || n <= 0)
     return std::string(s);
   std::string prefix(n, c);
@@ -200,7 +200,7 @@ std::string shark::str::indent(std::string_view s, char c, int n) {
 }
 
 
-std::string shark::str::make_uuid() {
+std::string felis::str::make_uuid() {
   static thread_local std::mt19937_64 engine(std::random_device{}());
   std::uniform_int_distribution<std::uint32_t> distribution(0, 0xFFFFFFFFu);
 
@@ -221,7 +221,7 @@ std::string shark::str::make_uuid() {
 }
 
 
-std::string shark::str::now_iso8601_utc() {
+std::string felis::str::now_iso8601_utc() {
   const auto now = std::chrono::system_clock::now();
   const std::time_t seconds = std::chrono::system_clock::to_time_t(now);
 

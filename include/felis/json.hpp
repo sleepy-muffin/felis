@@ -9,7 +9,7 @@
 #include <variant>
 #include <vector>
 
-namespace shark::json {
+namespace felis::json {
 
 class value;
 
@@ -136,4 +136,4 @@ private:
 [[nodiscard]] std::string dumps(const value& item, int indentation = 0);
 [[nodiscard]] std::string dumps(const object& item, int indentation = 0);
 
-} // namespace shark::json
+} // namespace felis::json

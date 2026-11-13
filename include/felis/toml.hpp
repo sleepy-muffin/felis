@@ -5,7 +5,7 @@
 #include <variant>
 #include <string>
 
-namespace shark::toml {
+namespace felis::toml {
 class Toml {
 public:
   using Table = std::map<std::string, Toml>;

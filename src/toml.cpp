@@ -1,4 +1,4 @@
-#include "shark/toml.hpp"
+#include "felis/toml.hpp"
 
 #include <charconv>
 #include <fstream>
@@ -41,8 +41,8 @@ std::string toml_unquote(const std::string& value, size_t line) {
   return out;
 }
 
-shark::toml::Toml parse_toml_scalar(const std::string& value, size_t line) {
-  using Toml = shark::toml::Toml;
+felis::toml::Toml parse_toml_scalar(const std::string& value, size_t line) {
+  using Toml = felis::toml::Toml;
   if (value.empty())
     throw std::runtime_error("TOML line " + std::to_string(line) + ": empty value");
   if (value.front() == '"')
@@ -68,20 +68,20 @@ shark::toml::Toml parse_toml_scalar(const std::string& value, size_t line) {
   throw std::runtime_error("TOML line " + std::to_string(line) + ": unsupported value");
 }
 
-shark::toml::Toml::Table& ensure_toml_table(shark::toml::Toml& node) {
+felis::toml::Toml::Table& ensure_toml_table(felis::toml::Toml& node) {
   if (!node.is_table())
-    node = shark::toml::Toml(shark::toml::Toml::Table{});
+    node = felis::toml::Toml(felis::toml::Toml::Table{});
   return node.table();
 }
 } // namespace
 
-bool shark::toml::Toml::is_table() const { return std::holds_alternative<Table>(value_); }
-bool shark::toml::Toml::is_string() const { return std::holds_alternative<std::string>(value_); }
-bool shark::toml::Toml::is_integer() const { return std::holds_alternative<int64_t>(value_); }
-bool shark::toml::Toml::is_real() const { return std::holds_alternative<double>(value_); }
-bool shark::toml::Toml::is_boolean() const { return std::holds_alternative<bool>(value_); }
+bool felis::toml::Toml::is_table() const { return std::holds_alternative<Table>(value_); }
+bool felis::toml::Toml::is_string() const { return std::holds_alternative<std::string>(value_); }
+bool felis::toml::Toml::is_integer() const { return std::holds_alternative<int64_t>(value_); }
+bool felis::toml::Toml::is_real() const { return std::holds_alternative<double>(value_); }
+bool felis::toml::Toml::is_boolean() const { return std::holds_alternative<bool>(value_); }
 
-const shark::toml::Toml& shark::toml::Toml::at(const std::string& key) const {
+const felis::toml::Toml& felis::toml::Toml::at(const std::string& key) const {
   const auto& t = table();
   auto it = t.find(key);
   if (it == t.end())
@@ -89,7 +89,7 @@ const shark::toml::Toml& shark::toml::Toml::at(const std::string& key) const {
   return it->second;
 }
 
-shark::toml::Toml& shark::toml::Toml::at(const std::string& key) {
+felis::toml::Toml& felis::toml::Toml::at(const std::string& key) {
   auto& t = table();
   auto it = t.find(key);
   if (it == t.end())
@@ -97,7 +97,7 @@ shark::toml::Toml& shark::toml::Toml::at(const std::string& key) {
   return it->second;
 }
 
-const shark::toml::Toml* shark::toml::Toml::find(const std::string& key) const {
+const felis::toml::Toml* felis::toml::Toml::find(const std::string& key) const {
   if (!is_table())
     return nullptr;
   const auto& t = std::get<Table>(value_);
@@ -105,7 +105,7 @@ const shark::toml::Toml* shark::toml::Toml::find(const std::string& key) const {
   return it == t.end() ? nullptr : &it->second;
 }
 
-shark::toml::Toml* shark::toml::Toml::find(const std::string& key) {
+felis::toml::Toml* felis::toml::Toml::find(const std::string& key) {
   if (!is_table())
     return nullptr;
   auto& t = std::get<Table>(value_);
@@ -113,31 +113,31 @@ shark::toml::Toml* shark::toml::Toml::find(const std::string& key) {
   return it == t.end() ? nullptr : &it->second;
 }
 
-const shark::toml::Toml::Table& shark::toml::Toml::table() const {
+const felis::toml::Toml::Table& felis::toml::Toml::table() const {
   if (!is_table())
     throw std::runtime_error("expected TOML table");
   return std::get<Table>(value_);
 }
 
-shark::toml::Toml::Table& shark::toml::Toml::table() {
+felis::toml::Toml::Table& felis::toml::Toml::table() {
   if (!is_table())
     throw std::runtime_error("expected TOML table");
   return std::get<Table>(value_);
 }
 
-std::string shark::toml::Toml::string() const {
+std::string felis::toml::Toml::string() const {
   if (!is_string())
     throw std::runtime_error("expected TOML string");
   return std::get<std::string>(value_);
 }
 
-int64_t shark::toml::Toml::integer() const {
+int64_t felis::toml::Toml::integer() const {
   if (!is_integer())
     throw std::runtime_error("expected TOML integer");
   return std::get<int64_t>(value_);
 }
 
-double shark::toml::Toml::real() const {
+double felis::toml::Toml::real() const {
   if (is_real())
     return std::get<double>(value_);
   if (is_integer())
@@ -145,13 +145,13 @@ double shark::toml::Toml::real() const {
   throw std::runtime_error("expected TOML number");
 }
 
-bool shark::toml::Toml::boolean() const {
+bool felis::toml::Toml::boolean() const {
   if (!is_boolean())
     throw std::runtime_error("expected TOML boolean");
   return std::get<bool>(value_);
 }
 
-shark::toml::Toml shark::toml::parse(std::string_view text) {
+felis::toml::Toml felis::toml::parse(std::string_view text) {
   Toml root(Toml::Table{});
   Toml* current = &root;
   std::istringstream in{std::string(text)};
@@ -214,7 +214,7 @@ shark::toml::Toml shark::toml::parse(std::string_view text) {
   return root;
 }
 
-shark::toml::Toml shark::toml::parse_toml(const std::filesystem::path& path) {
+felis::toml::Toml felis::toml::parse_toml(const std::filesystem::path& path) {
   std::ifstream in(path);
   if (!in)
     throw std::runtime_error("cannot open config: " + path.string());

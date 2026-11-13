@@ -9,7 +9,7 @@
 // Qt already links (QRegularExpression). The point of a separate module is that
 // the interesting rules — the ignore-aware walk and the matching — stay pure and
 // testable, exactly like the context layer (see docs/architecture.md).
-namespace shark::file {
+namespace felis::file {
 
 // Resolves a model-supplied `relative` path against `root_str` and rejects
 // anything that would escape the root (including via symlinks). Absolute paths
@@ -69,7 +69,7 @@ TextSearchResult search_regex(
     const std::string& display_prefix
 );
 
-shark::file::TextSearchResult search_code(
+felis::file::TextSearchResult search_code(
     const std::string& query, const std::string& root_path,
     const std::string& relative_path, const std::string& display_prefix
 );

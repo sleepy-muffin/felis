@@ -13,7 +13,7 @@
 
 #include <GL/gl.h>
 
-namespace shark::media
+namespace felis::media
 {
 
 	struct texture

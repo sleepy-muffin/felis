@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-namespace shark::net {
+namespace felis::net {
 
 // A parsed proxy specification. The scheme selects the transport; a bare
 // `host:port` keeps the historical meaning (SOCKS5), so sessions created before

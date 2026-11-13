@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shark/common.hpp"
+#include "felis/common.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -18,15 +18,15 @@ struct sqlite3_stmt;
 // file and prepares statements, while `database` owns the tables. The legacy
 // `lnb::sqlite_interface` could not be reused because its constructor runs the
 // old schema and its migrations.
-namespace shark::sqlite
+namespace felis::sqlite
 {
 // // //
 
 class statement;
 
 
-struct sqlite_binder : shark::iter_args<sqlite_binder> {
-  // using shark::iter_args<sqlite_binder>::operator();
+struct sqlite_binder : felis::iter_args<sqlite_binder> {
+  // using felis::iter_args<sqlite_binder>::operator();
 
   sqlite_binder(const sqlite_binder&) = delete;
   sqlite_binder& operator=(const sqlite_binder&) = delete;

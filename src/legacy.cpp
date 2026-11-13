@@ -1,8 +1,8 @@
 /*
- * Project: shark
- * Repository: https://github.com/sleepy-muffin/shark
+ * Project: felis
+ * Repository: https://github.com/sleepy-muffin/felis
  *
- * File: shark/src/legacy.cpp
+ * File: felis/src/legacy.cpp
  *
  * License: MIT
  */
@@ -24,12 +24,12 @@
 #include <unistd.h>
 #endif
 
-#include "shark/legacy.hpp"
-#include "shark/str.hpp"
+#include "felis/legacy.hpp"
+#include "felis/str.hpp"
 
 #ifdef __linux__
 
-std::string shark::legacy::find_system_font(
+std::string felis::legacy::find_system_font(
 	std::string_view name)
 {
 	std::string command = "fc-match -f '%{file}' \"" + std::string(name) + "\"";
@@ -109,7 +109,7 @@ std::string lock_contents() {
   const long pid = static_cast<long>(::getpid());
 #endif
 
-  return "pid " + std::to_string(pid) + "\nstarted " + shark::str::now_iso8601_utc() + "\n";
+  return "pid " + std::to_string(pid) + "\nstarted " + felis::str::now_iso8601_utc() + "\n";
 }
 
 void write_contents(
@@ -155,11 +155,11 @@ void write_contents(
 } // namespace
 
 
-shark::legacy::instance_lock::~instance_lock() {
+felis::legacy::instance_lock::~instance_lock() {
   release();
 }
 
-bool shark::legacy::instance_lock::acquire(const std::filesystem::path& path, std::string& error) {
+bool felis::legacy::instance_lock::acquire(const std::filesystem::path& path, std::string& error) {
   release();
 
   std::error_code ignored;
@@ -224,7 +224,7 @@ bool shark::legacy::instance_lock::acquire(const std::filesystem::path& path, st
   return true;
 }
 
-void shark::legacy::instance_lock::release() {
+void felis::legacy::instance_lock::release() {
 #if defined(_WIN32)
   if (handle_ != nullptr) {
     // Closing the handle releases the region lock.
@@ -243,7 +243,7 @@ void shark::legacy::instance_lock::release() {
   path_.clear();
 }
 
-bool shark::legacy::instance_lock::held() const {
+bool felis::legacy::instance_lock::held() const {
 #if defined(_WIN32)
   return handle_ != nullptr;
 #else

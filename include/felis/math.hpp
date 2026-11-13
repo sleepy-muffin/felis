@@ -6,9 +6,9 @@
 
 #include <random>
 
-#include "shark/str.hpp"
+#include "felis/str.hpp"
 
-namespace shark::math
+namespace felis::math
 {
 
 namespace
@@ -47,4 +47,4 @@ inline int random_int(
 	return begin + (int)(r * (end - begin));
 }
 
-} // namespace shark::math
+} // namespace felis::math

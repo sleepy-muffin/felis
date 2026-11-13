@@ -4,10 +4,10 @@
 #error "This header requires C++"
 #endif
 
-#include "shark/common.hpp"
-#include "shark/log.hpp"
+#include "felis/common.hpp"
+#include "felis/log.hpp"
 
-namespace shark {
+namespace felis {
 // For specified error code
 template <auto F, auto N, typename... Types>
 auto checked_invoke(
@@ -15,7 +15,7 @@ auto checked_invoke(
 {
   auto result = F(std::forward<Types>(Args)...);
   if (decltype(N)(result) != N) {
-    log::debug("Invocation of function has failed: {} {:#x}", SHARK_FUNCTION,
+    log::debug("Invocation of function has failed: {} {:#x}", FELIS_FUNCTION,
                decltype(N)(result));
     raise("Invocation of function has failed");
   }
@@ -23,7 +23,7 @@ auto checked_invoke(
 }
 }
 
-namespace shark::legacy {
+namespace felis::legacy {
 template <auto F, typename... Types>
 auto yinvoke(
     Types&&... Args)
@@ -45,7 +45,7 @@ struct rcheck
       T v) const
   {
     if (v != good) {
-      log::debug("Invocation of function has failed: {} {:#x}", SHARK_FUNCTION,
+      log::debug("Invocation of function has failed: {} {:#x}", FELIS_FUNCTION,
                  static_cast<unsigned long>(v));
       throw pinch{"Invocation of function has failed"};
     }

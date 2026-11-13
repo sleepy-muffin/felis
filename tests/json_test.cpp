@@ -1,14 +1,14 @@
 // Regression tests for the value/object/array JSON design.
-#include "shark/json.hpp"
+#include "felis/json.hpp"
 
 #include <iostream>
 #include <string>
 
 namespace {
 
-using shark::json::dumps;
-using shark::json::parse;
-using shark::json::value;
+using felis::json::dumps;
+using felis::json::parse;
+using felis::json::value;
 
 int failures = 0;
 
@@ -23,14 +23,14 @@ void expect(bool condition, const std::string& label) {
 
 void test_parse() {
   const auto document = parse(
-      R"({"name":"shark","count":3,"ratio":1.5,"ok":true,"none":null,"items":["a",2]})"
+      R"({"name":"felis","count":3,"ratio":1.5,"ok":true,"none":null,"items":["a",2]})"
   );
 
   expect(document.is_object(), "root is an object");
 
   const auto& object = document.as_object();
   expect(object.exists("name"), "name exists");
-  expect(object.at("name").as_string() == "shark", "name value");
+  expect(object.at("name").as_string() == "felis", "name value");
   expect(object.at("count").is_int(), "count is an int");
   expect(object.at("count").get_int() == 3, "count value");
   expect(object.at("ratio").is_double(), "ratio is a double");
@@ -61,14 +61,14 @@ void test_dumps() {
 
 void test_build() {
   value document;
-  document["name"] = "shark";
+  document["name"] = "felis";
   document["count"] = 3;
   document["items"][0] = true;
   document["items"][1] = "second";
   document["nested"]["enabled"] = false;
 
   expect(document.is_object(), "indexing creates an object");
-  expect(document["name"].as_string() == "shark", "string assignment");
+  expect(document["name"].as_string() == "felis", "string assignment");
   expect(document["count"].get_int() == 3, "int assignment");
   expect(document["items"].is_array(), "indexing creates an array");
   expect(document["items"].as_array().size() == 2, "array grows on demand");
@@ -77,7 +77,7 @@ void test_build() {
 
   expect(
       dumps(document) ==
-          R"({"count":3,"items":[true,"second"],"name":"shark","nested":{"enabled":false}})",
+          R"({"count":3,"items":[true,"second"],"name":"felis","nested":{"enabled":false}})",
       "built document output"
   );
 }

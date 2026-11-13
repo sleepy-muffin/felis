@@ -1,8 +1,8 @@
-#include "shark/str.hpp"
-#include "shark/log.hpp"
+#include "felis/str.hpp"
+#include "felis/log.hpp"
 
-#include "shark/file/search.hpp"
-#include "shark/file/file.hpp"
+#include "felis/file/search.hpp"
+#include "felis/file/file.hpp"
 
 // #include "net/tools.hpp"
 
@@ -217,7 +217,7 @@ void load_ignore_rules(
       if (!line.empty() && line.back() == '\r')
         line.pop_back();
 
-      std::string pattern = shark::str::trim(line);
+      std::string pattern = felis::str::trim(line);
 
       if (pattern.empty() || pattern.front() == '#')
         continue;
@@ -395,7 +395,7 @@ struct WalkSetup {
 WalkSetup prepare_walk(const std::string &root_path, const std::string &relative_path) {
   WalkSetup setup;
   const std::filesystem::path root = std::filesystem::canonical(root_path);
-  setup.start = shark::file::checked_repo_path(root_path, relative_path);
+  setup.start = felis::file::checked_repo_path(root_path, relative_path);
 
   if (!std::filesystem::is_directory(setup.start)) {
     throw std::runtime_error("Search path is not a directory");
@@ -477,7 +477,7 @@ std::optional<std::string> required_literal(const std::string &pattern) {
 
 // END OF ANONYMOUS NAMESPACE ==================================================================
 
-std::string shark::file::list_directory(
+std::string felis::file::list_directory(
     const std::string& root_path, const std::string& relative_path
 ) {
   namespace fs = std::filesystem;
@@ -486,7 +486,7 @@ std::string shark::file::list_directory(
 
   std::error_code error;
   if (!fs::is_directory(directory, error) || error) {
-    shark::raise("Path is not a directory");
+    felis::raise("Path is not a directory");
   }
 
   std::vector<std::string> entries;
@@ -497,7 +497,7 @@ std::string shark::file::list_directory(
   );
 
   if (error) {
-    shark::raise("Cannot read directory");
+    felis::raise("Cannot read directory");
   }
 
   for (fs::directory_iterator end; iterator != end; iterator.increment(error)) {
@@ -517,7 +517,7 @@ std::string shark::file::list_directory(
   }
 
   if (error) {
-    shark::raise("Cannot read directory");
+    felis::raise("Cannot read directory");
   }
 
   std::sort(entries.begin(), entries.end());
@@ -540,7 +540,7 @@ std::string shark::file::list_directory(
 
 
 
-std::filesystem::path shark::file::checked_repo_path(
+std::filesystem::path felis::file::checked_repo_path(
     const std::string& root_str, const std::string& relative
 ) {
   namespace fs = std::filesystem;
@@ -576,7 +576,7 @@ std::filesystem::path shark::file::checked_repo_path(
 }
 
 
-shark::file::WalkResult shark::file::collect_files(
+felis::file::WalkResult felis::file::collect_files(
     const std::string &root_path, const std::string &relative_path, const std::string &glob,
     std::size_t max_files) {
   WalkSetup setup = prepare_walk(root_path, relative_path);
@@ -601,7 +601,7 @@ shark::file::WalkResult shark::file::collect_files(
   return result;
 }
 
-shark::file::TextSearchResult shark::file::search_regex(
+felis::file::TextSearchResult felis::file::search_regex(
     const std::string &pattern, const std::string &root_path, const std::string &relative_path,
     const std::string &glob, const std::string &display_prefix) {
   if (pattern.empty() || pattern.size() > kMaxPatternLength) {
@@ -742,7 +742,7 @@ shark::file::TextSearchResult shark::file::search_regex(
   return result;
 }
 
-shark::file::FileListResult shark::file::find_files(
+felis::file::FileListResult felis::file::find_files(
     const std::string &glob, const std::string &root_path, const std::string &relative_path,
     const std::string &display_prefix) {
   if (glob.empty()) {
@@ -768,7 +768,7 @@ shark::file::FileListResult shark::file::find_files(
 }
 
 
-shark::file::TextSearchResult shark::file::search_code(
+felis::file::TextSearchResult felis::file::search_code(
     const std::string &query, const std::string &root_path, const std::string &relative_path,
     const std::string &display_prefix) {
 
@@ -792,7 +792,7 @@ shark::file::TextSearchResult shark::file::search_code(
   // that the model would otherwise miss now succeeds.
   const bool case_sensitive =
       std::any_of(query.begin(), query.end(), [](unsigned char c) { return std::isupper(c) != 0; });
-  const std::string needle = case_sensitive ? query : shark::str::to_lower(query);
+  const std::string needle = case_sensitive ? query : felis::str::to_lower(query);
 
   std::ostringstream out;
   int matches = 0;
@@ -838,7 +838,7 @@ shark::file::TextSearchResult shark::file::search_code(
       }
 
       for (std::size_t i = 0; i < lines.size() && matches < MAX_MATCHES; ++i) {
-        const std::string haystack = case_sensitive ? lines[i] : shark::str::to_lower(lines[i]);
+        const std::string haystack = case_sensitive ? lines[i] : felis::str::to_lower(lines[i]);
         if (haystack.find(needle) == std::string::npos) {
           continue;
         }

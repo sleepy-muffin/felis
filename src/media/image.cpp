@@ -1,13 +1,13 @@
 /*
- * Project: shark
- * Repository: https://github.com/leaked32/shark
+ * Project: felis
+ * Repository: https://github.com/leaked32/felis
  *
- * File: shark/src/image.cpp
+ * File: felis/src/image.cpp
  *
  * License: MIT
  */
 
-#include "shark/media/image.hpp"
+#include "felis/media/image.hpp"
 
 #include <vector>
 
@@ -15,7 +15,7 @@
 #include <png.h>
 
 
-std::optional<shark::media::texture> shark::media::load_png_texture(
+std::optional<felis::media::texture> felis::media::load_png_texture(
 	const std::filesystem::path& path)
 {
 	FILE* fp = fopen(path.string().c_str(), "rb");
@@ -90,7 +90,7 @@ std::optional<shark::media::texture> shark::media::load_png_texture(
 
 	png_destroy_read_struct(&png, &info, nullptr);
 
-	shark::media::texture result;
+	felis::media::texture result;
 
 	result.width = width;
 	result.height = height;
@@ -107,7 +107,7 @@ std::optional<shark::media::texture> shark::media::load_png_texture(
 	return result;
 }
 
-std::optional<shark::media::texture> shark::media::load_jpeg_texture(
+std::optional<felis::media::texture> felis::media::load_jpeg_texture(
 	const std::filesystem::path& path)
 {
 	FILE* fp = fopen(path.string().c_str(), "rb");
@@ -153,7 +153,7 @@ std::optional<shark::media::texture> shark::media::load_jpeg_texture(
 
 	fclose(fp);
 
-	shark::media::texture result;
+	felis::media::texture result;
 
 	result.width = width;
 	result.height = height;
@@ -171,15 +171,15 @@ std::optional<shark::media::texture> shark::media::load_jpeg_texture(
 	return result;
 }
 
-std::optional<shark::media::texture> shark::media::load_texture(
+std::optional<felis::media::texture> felis::media::load_texture(
 	const std::filesystem::path& path)
 {
 	if (path.extension() == ".png") {
-		return shark::media::load_png_texture(path);
+		return felis::media::load_png_texture(path);
 	}
 
 	if (path.extension() == ".jpg" || path.extension() == ".jpeg") {
-		return shark::media::load_jpeg_texture(path);
+		return felis::media::load_jpeg_texture(path);
 	}
 
 	return std::nullopt;

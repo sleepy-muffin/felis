@@ -10,7 +10,7 @@
 #include <boost/json/array.hpp>
 #include <boost/json/object.hpp>
 
-namespace shark::file {
+namespace felis::file {
 class tlm_node {
   // Touhou Little Marks
 
@@ -67,4 +67,4 @@ bool is_binary_file(const std::filesystem::path &path);
 boost::json::object read_json(std::string_view path);
 void dump_json(std::string_view path, const boost::json::object& js);
 
-}; // namespace shark::file
+}; // namespace felis::file

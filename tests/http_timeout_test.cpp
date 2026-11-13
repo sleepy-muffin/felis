@@ -6,7 +6,7 @@
 // beast::error::timeout — even when the caller asked for a much longer read
 // window. This test connects with a short inactivity window and then makes the
 // server stay silent for longer than that window before answering.
-#include "shark/net/http.hpp"
+#include "felis/net/http.hpp"
 
 #include <boost/asio.hpp>
 
@@ -113,9 +113,9 @@ int main() {
   std::string body;
   bool response_seen = false;
 
-  const int status = shark::net::http_request(
+  const int status = felis::net::http_request(
       "GET", url, std::nullopt, {}, "", std::stop_token{},
-      [&](int, const std::vector<shark::net::HttpHeader>&) {
+      [&](int, const std::vector<felis::net::HttpHeader>&) {
         response_seen = true;
         return true;
       },

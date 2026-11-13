@@ -18,10 +18,10 @@
 #include <type_traits>
 #include <utility>
 
-#include "shark/common.hpp"
-#include "shark/log.hpp"
+#include "felis/common.hpp"
+#include "felis/log.hpp"
 
-namespace shark::async {
+namespace felis::async {
 struct io_context;
 
 struct delayer {
@@ -357,7 +357,7 @@ struct io_context {
         continue;
       }
 
-      if constexpr (SHARK_DEBUG) {
+      if constexpr (FELIS_DEBUG) {
         log::debug("selected {}", sit->stacks());
       }
       // If the condition is true, then the thread hasn't bound to
@@ -371,7 +371,7 @@ struct io_context {
         }
         // Coroutine can call others and emplace them to the stack in io_context,
         // but it mustn't resume coroutines behind.
-        if constexpr (SHARK_DEBUG) {
+        if constexpr (FELIS_DEBUG) {
           log::debug("resuming {}", sit->stacks());
         }
         sit->addresses_.top().resume();
@@ -411,7 +411,7 @@ struct io_context {
         local_delayer.exec_delay();
       }
     }
-    if constexpr (SHARK_DEBUG) {
+    if constexpr (FELIS_DEBUG) {
       log::debug(
         "io_context::run has ended since no candidate async action is provided"
         "  I guess. it's something you expect"
@@ -590,8 +590,8 @@ public:
   }
 
 private:
-  shark::async::awaitable<int> async_load(int id) {
-    shark::async::deadline_timer timer;
+  felis::async::awaitable<int> async_load(int id) {
+    felis::async::deadline_timer timer;
 
     while (!shutting_down_) {
       job_type job;
@@ -619,7 +619,7 @@ private:
 
   std::atomic_bool shutting_down_ = false;
 
-  shark::async::io_context ioc;
+  felis::async::io_context ioc;
   std::vector<std::thread> threads;
 };
-} // namespace shark::async
+} // namespace felis::async

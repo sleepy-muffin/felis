@@ -1,9 +1,9 @@
 //
 // Created by menv on 10/19/26.
 //
-#include "shark/sqlite3.hpp"
+#include "felis/sqlite3.hpp"
 
-#include "shark/legacy.hpp"
+#include "felis/legacy.hpp"
 
 #include <sqlite3.h>
 
@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace shark::sqlite {
+namespace felis::sqlite {
 
 namespace {
 
@@ -56,7 +56,7 @@ void sqlite_binder::operator()(std::string_view text) {
     throw std::length_error("Bound text is too large for sqlite3_bind_text");
   }
   const char *data = text.empty() ? "" : text.data();
-  shark::checked_invoke<sqlite3_bind_text, SQLITE_OK>(
+  felis::checked_invoke<sqlite3_bind_text, SQLITE_OK>(
       stmt_.stmt_, ++count_, data, static_cast<int>(text.size()), SQLITE_TRANSIENT);
 }
 
@@ -64,16 +64,16 @@ void sqlite_binder::operator()(const std::optional<std::string> &text) {
   if (text) {
     (*this)(std::string_view(*text));
   } else {
-    shark::checked_invoke<sqlite3_bind_null, SQLITE_OK>(stmt_.stmt_, ++count_);
+    felis::checked_invoke<sqlite3_bind_null, SQLITE_OK>(stmt_.stmt_, ++count_);
   }
 }
 
 void sqlite_binder::operator()(int num) {
-  shark::checked_invoke<sqlite3_bind_int, SQLITE_OK>(stmt_.stmt_, ++count_, num);
+  felis::checked_invoke<sqlite3_bind_int, SQLITE_OK>(stmt_.stmt_, ++count_, num);
 }
 
 void sqlite_binder::operator()(uint32_t num) {
-  shark::checked_invoke<sqlite3_bind_int64, SQLITE_OK>(
+  felis::checked_invoke<sqlite3_bind_int64, SQLITE_OK>(
       stmt_.stmt_, ++count_, static_cast<sqlite3_int64>(num));
 }
 
@@ -230,4 +230,4 @@ void connection::exec(std::string_view sql) const {
   }
 }
 
-} // namespace shark::sqlite
+} // namespace felis::sqlite

@@ -17,10 +17,10 @@
 #include <string>
 #include <thread>
 
-#include "shark/common.hpp"
+#include "felis/common.hpp"
 
 
-namespace shark {
+namespace felis {
 namespace log {
   // inline std::mutex _logger_bus;
 
@@ -123,7 +123,7 @@ namespace log {
     constexpr void debug(
       const std::format_string<Types...>& Fmt, Types&&... Args
     ) {
-      if constexpr (SHARK_DEBUG) {
+      if constexpr (FELIS_DEBUG) {
         std::string info_str = std::format(Fmt, std::forward<Types>(Args)...);
         push(message_type::DEBUG, info_str);
       }
@@ -245,7 +245,7 @@ struct pinch : std::exception {
     const std::format_string<Types...>& Fmt, Types&&... Args
   ) {
     std::string info_str = std::format(Fmt, std::forward<Types>(Args)...);
-    msg_ = std::format("trace {}:{}", SHARK_FUNCTION, info_str);
+    msg_ = std::format("trace {}:{}", FELIS_FUNCTION, info_str);
   }
 
   // pinch(std::string_view func_name, std::string_view information) : std::exception{},
@@ -266,7 +266,7 @@ template<typename... Types>
 void raise(
   const std::format_string<Types...>& Fmt, Types&&... Args
 ) {
-  shark::print(Fmt, std::forward<Types>(Args)...);
+  felis::print(Fmt, std::forward<Types>(Args)...);
   throw pinch(Fmt, std::forward<Types>(Args)...);
 }
 
