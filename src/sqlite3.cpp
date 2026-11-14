@@ -77,6 +77,14 @@ void sqlite_binder::operator()(uint32_t num) {
       stmt_.stmt_, ++count_, static_cast<sqlite3_int64>(num));
 }
 
+void sqlite_binder::operator()(void* ptr) {
+  felis::check(ptr == nullptr,
+    "Binding a pointer is intended for null binding using sqlite3_bind_null, always parse nullptr");
+
+  felis::checked_invoke<sqlite3_bind_null, SQLITE_OK>(
+      stmt_.stmt_, ++count_);
+}
+
 
 // void statement::bind_one(int index, std::string_view text) const {
 //   if (text.size() > static_cast<std::size_t>(std::numeric_limits<int>::max())) {

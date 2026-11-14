@@ -44,6 +44,8 @@ struct sqlite_binder : felis::iter_args<sqlite_binder> {
   void operator()(int num);
   void operator()(uint32_t num);
 
+  void operator()(void* ptr);
+
   const statement& stmt_;
   int count_ = 0;
 };
