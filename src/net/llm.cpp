@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#include "felis/llm.hpp"
+#include "felis/net/llm.hpp"
 
 #include "felis/log.hpp"
 
