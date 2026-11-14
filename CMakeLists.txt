@@ -44,6 +44,8 @@ option(FELIS_BUILD_SQLITE3 "Build the sqlite3 module" ON)
 option(FELIS_BUILD_IMAGE "Build the image module (OpenGL/JPEG/PNG)" ON)
 option(FELIS_BUILD_AUDIO "Build the audio module (opus/opusfile/mpg123/lame)" ON)
 
+find_package(Boost REQUIRED COMPONENTS json regex)
+
 set(FELIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # ========== ---------- ---------- ---------- ==========
