@@ -69,7 +69,7 @@ TextSearchResult search_regex(
     const std::string& display_prefix
 );
 
-felis::file::TextSearchResult search_code(
+felis::file::TextSearchResult search_plain(
     const std::string& query, const std::string& root_path,
     const std::string& relative_path, const std::string& display_prefix
 );
@@ -85,5 +85,9 @@ FileListResult find_files(
     const std::string& glob, const std::string& root_path,
     const std::string& relative_path, const std::string& display_prefix
 );
+
+
+std::filesystem::path checked_repo_path_for_write(const std::string& root_str, const std::string& relative);
+std::filesystem::path checked_repo_path_for_delete(const std::string& root_str, const std::string& relative);
 
 } // namespace lnb::net

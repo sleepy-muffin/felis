@@ -768,7 +768,7 @@ felis::file::FileListResult felis::file::find_files(
 }
 
 
-felis::file::TextSearchResult felis::file::search_code(
+felis::file::TextSearchResult felis::file::search_plain(
     const std::string &query, const std::string &root_path, const std::string &relative_path,
     const std::string &display_prefix) {
 
@@ -870,4 +870,77 @@ felis::file::TextSearchResult felis::file::search_code(
   result.files_scanned = files_scanned;
   result.truncated = matches == MAX_MATCHES;
   return result;
+}
+
+
+// Resolves a path for deletion. Only regular files may be removed: a directory
+// (or a symlink to one) is refused, and checked_repo_path() already rejects
+// anything that resolves outside the root.
+std::filesystem::path felis::file::checked_repo_path_for_delete(
+    const std::string& root_str, const std::string& relative
+) {
+  namespace fs = std::filesystem;
+
+  const fs::path file = felis::file::checked_repo_path(root_str, relative);
+  std::error_code error;
+
+  if (!fs::is_regular_file(file, error) || error) {
+    throw std::runtime_error("Path is not a regular file");
+  }
+
+  return file;
+}
+
+
+// Resolves a model path that may not exist yet. The final component may name a
+// new file, but the parent must exist. fs::weakly_canonical() resolves symlinks
+// in every existing prefix, so a link that escapes the root is still rejected.
+std::filesystem::path felis::file::checked_repo_path_for_write(
+    const std::string& root_str, const std::string& relative
+) {
+  namespace fs = std::filesystem;
+
+  std::error_code error;
+  const fs::path root = fs::canonical(root_str, error);
+
+  if (error) {
+    throw std::runtime_error("The shared directory is unavailable");
+  }
+
+  const fs::path input(relative);
+
+  if (input.is_absolute()) {
+    throw std::runtime_error("Paths must be relative to the shared directories");
+  }
+
+  const fs::path normalized = input.lexically_normal();
+  const std::string normalized_text = normalized.generic_string();
+
+  if (normalized_text.empty() || normalized_text == "." ||
+      normalized_text == ".." || normalized_text.rfind("../", 0) == 0) {
+    throw std::runtime_error("Path is outside the shared directories");
+  }
+
+  const fs::path candidate = fs::weakly_canonical(root / normalized, error);
+
+  if (error) {
+    throw std::runtime_error("The path could not be resolved");
+  }
+
+  const fs::path rel = candidate.lexically_relative(root);
+  if (rel.empty() || rel.is_absolute() || *rel.begin() == "..") {
+    throw std::runtime_error("Path is outside the shared directories");
+  }
+
+  std::error_code type_error;
+
+  if (fs::is_directory(candidate, type_error) && !type_error) {
+    throw std::runtime_error("Path is a directory");
+  }
+
+  if (!fs::is_directory(candidate.parent_path(), type_error) || type_error) {
+    throw std::runtime_error("Parent directory does not exist");
+  }
+
+  return candidate;
 }

@@ -234,3 +234,90 @@ void felis::file::dump_json(
 
 	std::ofstream(std::string(path)) << pretty;
 }
+
+// Reads an inclusive line range, prefixing each line with its number. Kept out
+// of the header because it is an implementation detail of read_file.
+std::string felis::file::read_file_range(const std::filesystem::path& file, int start_line, int end_line) {
+
+  namespace fs = std::filesystem;
+
+  if (start_line < 1 || end_line < start_line || end_line - start_line > 300) {
+    throw std::runtime_error("Invalid line range; maximum range is 301 lines");
+  }
+
+  std::error_code error;
+  const std::uintmax_t size = fs::file_size(file, error);
+
+  if (error) {
+    throw std::runtime_error("Cannot read file");
+  }
+
+  if (size > 2 * 1024 * 1024) {
+    throw std::runtime_error("File is too large");
+  }
+
+  std::ifstream in(file);
+  if (!in) {
+    throw std::runtime_error("Cannot open file");
+  }
+
+  std::ostringstream out;
+  std::string line;
+  int line_no = 0;
+
+  while (std::getline(in, line)) {
+    ++line_no;
+    if (line_no < start_line) continue;
+    if (line_no > end_line) break;
+
+    out << line_no << ": " << line << '\n';
+  }
+
+  return out.str();
+}
+
+// The largest file the write tools accept, so one tool call cannot fill the disk.
+constexpr std::size_t kMaxWriteBytes = 4 * 1024 * 1024;
+
+
+void felis::file::write_file_contents(const std::filesystem::path& file, const std::string& content) {
+  if (content.size() > kMaxWriteBytes) {
+    throw std::runtime_error("File content is too large (maximum 4 MiB)");
+  }
+
+  std::ofstream out(file, std::ios::binary | std::ios::trunc);
+
+  if (!out) {
+    throw std::runtime_error("Cannot write file");
+  }
+
+  out.write(content.data(), static_cast<std::streamsize>(content.size()));
+
+  if (!out) {
+    throw std::runtime_error("Cannot write file");
+  }
+}
+
+std::string felis::file::read_whole_file(const std::filesystem::path& file) {
+
+  std::error_code error;
+  const std::uintmax_t size = std::filesystem::file_size(file, error);
+
+  if (error) {
+    throw std::runtime_error("Cannot read file");
+  }
+
+  if (size > kMaxWriteBytes) {
+    throw std::runtime_error("File is too large to edit (maximum 4 MiB)");
+  }
+
+  std::ifstream in(file, std::ios::binary);
+
+  if (!in) {
+    throw std::runtime_error("Cannot open file");
+  }
+
+  return std::string(
+      std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()
+  );
+}

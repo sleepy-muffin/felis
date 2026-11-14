@@ -67,4 +67,8 @@ bool is_binary_file(const std::filesystem::path &path);
 boost::json::object read_json(std::string_view path);
 void dump_json(std::string_view path, const boost::json::object& js);
 
+std::string read_file_range(const std::filesystem::path& file, int start_line, int end_line);
+void write_file_contents(const std::filesystem::path& file, const std::string& content);
+std::string read_whole_file(const std::filesystem::path& file);
+
 }; // namespace felis::file
