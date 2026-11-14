@@ -24,7 +24,7 @@
 #include <utility>
 #include <vector>
 
-namespace felis::llm {
+namespace felis::net::llm {
 
 namespace {
 

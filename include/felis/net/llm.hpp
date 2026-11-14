@@ -30,7 +30,7 @@
 // handling, and the finished-turn result. The protocol is chosen by an enum, so
 // a caller makes the same one call whether it talks Chat Completions or
 // Responses.
-namespace felis::llm {
+namespace felis::net::llm {
 
 // The wire protocol. Both are OpenAI's; they differ in the SSE vocabulary and in
 // the shape of a finished turn (Chat echoes an assistant message with
