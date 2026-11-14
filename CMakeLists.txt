@@ -161,6 +161,7 @@ if(FELIS_BUILD_NET)
             SOURCES
             src/net/http.cpp
             src/net/proxy.cpp
+            src/net/llm.cpp
 
             PUBLIC
             felis::common
@@ -176,18 +177,6 @@ if(FELIS_BUILD_NET)
 
             PRIVATE
             ${FELIS_NET_PLATFORM_LIBRARIES}
-    )
-
-    # One streaming LLM call for either OpenAI protocol (Chat Completions or
-    # Responses). It owns the two SSE vocabularies and the transport handling; the
-    # caller supplies the already-built request body and a protocol enum.
-    felis_add_module(llm STATIC
-            SOURCES
-            src/llm.cpp
-
-            PUBLIC
-            felis::net
-            Boost::json
     )
 
 
