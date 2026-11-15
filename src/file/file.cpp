@@ -221,7 +221,6 @@ std::string felis::file::tlm_node::print(
 boost::json::object felis::file::read_json(
 	std::string_view path)
 {
-	namespace json = boost::json;
 	auto raw = boost::json::parse(read(path));
 	return raw.as_object();
 }
@@ -229,7 +228,6 @@ boost::json::object felis::file::read_json(
 void felis::file::dump_json(
 	std::string_view path, const boost::json::object& js)
 {
-	namespace json = boost::json;
 	std::string pretty = boost::json::serialize(js);
 
 	std::ofstream(std::string(path)) << pretty;

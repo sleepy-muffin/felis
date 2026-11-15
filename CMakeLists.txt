@@ -133,6 +133,7 @@ felis_add_module(
         src/json.cpp
         src/file/file.cpp
         src/file/search.cpp
+        src/file/process.cpp
 
         PUBLIC
         Boost::json
