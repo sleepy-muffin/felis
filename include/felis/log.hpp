@@ -27,6 +27,13 @@ namespace felis {
 namespace log {
   // inline std::mutex _logger_bus;
 
+  // Windows SDK headers (wingdi.h) define ERROR as a macro expanding to 0.
+  // That collides with the ERROR enumerator below, so drop the macro here; the
+  // enumerator is the meaningful spelling in this scope.
+#ifdef ERROR
+#undef ERROR
+#endif
+
   // Your message_type enum stays compatible
   enum class message_type {
     INFO,
