@@ -22,6 +22,11 @@
 #include "felis/log.hpp"
 
 namespace felis::async {
+
+#ifndef FELIS_ASYNC_DEBUG
+#define FELIS_ASYNC_DEBUG (false)
+#endif
+
 struct io_context;
 
 struct delayer {
@@ -357,7 +362,7 @@ struct io_context {
         continue;
       }
 
-      if constexpr (FELIS_DEBUG) {
+      if constexpr (FELIS_ASYNC_DEBUG) {
         log::debug("selected {}", sit->stacks());
       }
       // If the condition is true, then the thread hasn't bound to
@@ -371,7 +376,7 @@ struct io_context {
         }
         // Coroutine can call others and emplace them to the stack in io_context,
         // but it mustn't resume coroutines behind.
-        if constexpr (FELIS_DEBUG) {
+        if constexpr (FELIS_ASYNC_DEBUG) {
           log::debug("resuming {}", sit->stacks());
         }
         sit->addresses_.top().resume();
@@ -411,7 +416,7 @@ struct io_context {
         local_delayer.exec_delay();
       }
     }
-    if constexpr (FELIS_DEBUG) {
+    if constexpr (FELIS_ASYNC_DEBUG) {
       log::debug(
         "io_context::run has ended since no candidate async action is provided"
         "  I guess. it's something you expect"
