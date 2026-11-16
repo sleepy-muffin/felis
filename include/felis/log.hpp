@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #ifndef __cplusplus
 #error "This header requires C++"
 #endif
@@ -16,7 +17,9 @@
 #include <queue>
 #include <string>
 #include <thread>
+#include <functional>
 
+#include "felis/sync.hpp"
 #include "felis/common.hpp"
 
 
@@ -25,7 +28,20 @@ namespace log {
   // inline std::mutex _logger_bus;
 
   // Your message_type enum stays compatible
-  enum class message_type { INFO, DEBUG, EXCEPTION };
+  enum class message_type {
+    INFO,
+    DEBUG,
+    ERROR,
+  };
+
+  enum class logging_callback_result {
+    PASS,
+    TERMINATED,
+  };
+
+
+  using callback_id = std::size_t;
+  using logging_callback = std::function<logging_callback_result(message_type, std::string& content)>;
 
   // Internal backend class
   class backend {
@@ -134,8 +150,21 @@ namespace log {
       const std::format_string<Types...>& Fmt, Types&&... Args
     ) {
       std::string info_str = std::format(Fmt, std::forward<Types>(Args)...);
-      push(message_type::EXCEPTION, info_str);
+      push(message_type::ERROR, info_str);
     }
+
+    callback_id register_callback(logging_callback cb) {
+        auto guard = callbacks_.lock();
+        const callback_id id = next_callback_id_++;
+        (*guard).emplace(id, std::move(cb));
+        return id;
+    }
+
+    bool unregister_callback(callback_id id) {
+        auto guard = callbacks_.lock();
+        return (*guard).erase(id) != 0;
+    }
+
 
   private:
     void run() {
@@ -151,9 +180,20 @@ namespace log {
 
         lock.unlock();
 
+
+        std::vector<logging_callback> local;
         {
+            auto guard = callbacks_.lock();
+            local.reserve((*guard).size());
+            for (auto& [id, cb] : *guard) local.push_back(cb);
+        }
+        bool terminated = false;
+        for (auto& cb : local) {
+            if (cb(type, msg) == logging_callback_result::TERMINATED) { terminated = true; break; }
+        }
+        if (!terminated) {
           std::lock_guard output_lock(output_mtx_);
-          *output_ << msg << '\n';
+          *output_ << msg << std::endl;
           output_->flush();
         }
       }
@@ -169,6 +209,9 @@ namespace log {
     std::mutex output_mtx_;
     std::unique_ptr<std::ofstream> file_;
     std::ostream* output_;
+
+    felis::synchronized< std::unordered_map<std::size_t, logging_callback> > callbacks_;
+    std::size_t next_callback_id_;
 
     std::thread worker_;
   };
@@ -223,6 +266,15 @@ namespace log {
   ) {
     singleton().error(Fmt, std::forward<Types>(Args)...);
   }
+
+
+  inline callback_id register_callback(logging_callback cb) {
+      return singleton().register_callback(std::move(cb));
+  }
+  inline bool unregister_callback(callback_id id) {
+      return singleton().unregister_callback(id);
+  }
+
 
   // Optional kill() function for explicit shutdown
   inline void kill() {
@@ -284,6 +336,7 @@ inline void check(
 ) {
   check(condition, "");
 }
+
 
 
 struct profiler

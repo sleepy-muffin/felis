@@ -60,3 +60,24 @@ target_link_libraries(
 )
 
 add_test(NAME json COMMAND json-test)
+
+
+# ========== ---------- ---------- ---------- ==========
+#                          LOG
+# ========== ---------- ---------- ---------- ==========
+
+find_package(Threads REQUIRED)
+
+add_executable(
+  log-callbacks-test
+  log_callbacks_test.cpp
+)
+
+target_link_libraries(
+  log-callbacks-test
+  PRIVATE
+    felis::common
+    Threads::Threads
+)
+
+add_test(NAME log-callbacks COMMAND log-callbacks-test)

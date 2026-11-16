@@ -17,8 +17,12 @@
 #endif
 #endif
 
+#ifndef FELIS_DEBUG
+#define FELIS_DEBUG (false)
+#endif
+
 namespace felis {
-constexpr bool FELIS_DEBUG = false;
+// constexpr bool FELIS_DEBUG = false;
 
 template<class>
 struct function_traits;

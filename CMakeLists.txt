@@ -256,4 +256,11 @@ target_link_libraries(felis INTERFACE ${FELIS_MODULE_TARGETS})
 
 
 # Regression tests for the public core API.
+#
+# enable_testing() registers the add_test() entries with ctest. A consuming
+# project (add_subdirectory/FetchContent) is expected to enable testing itself,
+# so only do it when felis is the top-level project.
+if(PROJECT_IS_TOP_LEVEL)
+    enable_testing()
+endif()
 add_subdirectory(tests)
