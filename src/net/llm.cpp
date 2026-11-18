@@ -811,14 +811,21 @@ std::expected<Result, Failure> stream_request(
   }
 
   if (!stream_finished()) {
-    // The stream closed without its terminal sentinel. The usual cause is a
-    // non-streaming response — a plain JSON completion or an error body — which
-    // carries no `data:` lines to parse; showing the start of the body makes that
-    // immediately obvious.
-    std::string message = "SSE stream ended before [DONE]";
+    // The stream closed without its terminal event: Chat ends on the `[DONE]`
+    // sentinel, Responses on `response.completed` (with `.failed`/".incomplete"
+    // as the other endings) — there is no `[DONE]` on that protocol. Two causes
+    // look identical here and the body tells them apart: a non-streaming reply
+    // (a plain JSON completion or an error body) carries no `data:` records,
+    // whereas SSE records followed by EOF mean the server, or a proxy between us
+    // and it, dropped the connection mid-stream.
+    std::string message = chat_stream
+        ? "SSE stream ended before [DONE]"
+        : "SSE stream ended before response.completed";
 
     if (!captured.empty()) {
-      message += ": ";
+      const bool saw_events = captured.find("data:") != std::string::npos;
+      message += saw_events ? ": connection closed mid-stream: "
+                            : ": non-streaming response: ";
       message += captured.substr(0, 400);
     }
 
