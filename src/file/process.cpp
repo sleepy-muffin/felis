@@ -264,6 +264,44 @@ std::string narrow(std::wstring_view utf16) {
   return out;
 }
 
+// True when the bytes decode cleanly as UTF-8. Pure-ASCII output — the common
+// case — is valid UTF-8, so ordinary commands never take the transcode path.
+bool is_valid_utf8(std::string_view bytes) {
+  if (bytes.empty()) return true;
+  return MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, bytes.data(),
+                             static_cast<int>(bytes.size()), nullptr, 0) > 0;
+}
+
+// Decodes `bytes` as `code_page` and re-encodes the text as UTF-8. Best effort:
+// an empty result means the code page could not represent the bytes.
+std::string transcode_to_utf8(std::string_view bytes, UINT code_page) {
+  if (bytes.empty()) return {};
+  const int size = MultiByteToWideChar(code_page, 0, bytes.data(),
+                                       static_cast<int>(bytes.size()), nullptr, 0);
+  if (size <= 0) return {};
+  std::wstring wide(static_cast<std::size_t>(size), L'\0');
+  MultiByteToWideChar(code_page, 0, bytes.data(), static_cast<int>(bytes.size()),
+                      wide.data(), size);
+  return narrow(wide);
+}
+
+// cmd.exe is switched to code page 65001 so its builtins and console programs
+// emit UTF-8, but a program that ignores the console code page — a Python tool
+// on a Chinese Windows, say — still writes the system's OEM code page. Rather
+// than guess, keep the bytes when they are already valid UTF-8 and, when they
+// are not, decode them as the console's code page and re-encode as UTF-8.
+std::string decode_console_output(std::string_view bytes) {
+  if (is_valid_utf8(bytes)) return std::string(bytes);
+
+  std::string decoded = transcode_to_utf8(bytes, GetOEMCP());
+  if (!decoded.empty()) return decoded;
+
+  decoded = transcode_to_utf8(bytes, GetACP());
+  if (!decoded.empty()) return decoded;
+
+  return std::string(bytes);
+}
+
 // The message of the last failed Win32 call, without its trailing newline.
 std::string last_error() {
   const DWORD code = GetLastError();
@@ -489,11 +527,12 @@ result run_windows(const spec& request) {
   const std::wstring shell = shell_path();
 
   // The capture is UTF-8, but cmd.exe writes in the OEM code page. Switching
-  // the child's code page keeps non-ASCII output readable. A different ComSpec
-  // is left alone: it may not understand chcp.
+  // the child's code page keeps non-ASCII output readable for the builtins and
+  // any program that honours it; a different ComSpec is left alone, since it may
+  // not understand chcp. `2>&1` keeps a chcp failure off the merged output.
   std::string payload = request.command;
   if (is_cmd_exe(shell)) {
-    payload = "chcp 65001 >nul & " + payload;
+    payload = "chcp 65001 >nul 2>&1 & " + payload;
   }
 
   std::wstring line = command_line(shell, payload);
@@ -573,7 +612,9 @@ result run_windows(const spec& request) {
 
   for (stream& s : streams) join_reader(s.reader);
 
-  out.output = sink->finish();
+  // A program that ignores the console code page left OEM bytes behind; decode
+  // them so Chinese output reaches the model as text, not mojibake.
+  out.output = decode_console_output(sink->finish());
   out.truncated = sink->truncated();
   out.cancelled = cancelled;
   out.timed_out = timed_out;

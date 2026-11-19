@@ -63,7 +63,9 @@ struct result {
   int exit_code = -1;
 
   // Captured output, already capped to spec::max_output_bytes and never cut in
-  // the middle of a UTF-8 sequence.
+  // the middle of a UTF-8 sequence. On Windows, bytes that are not valid UTF-8
+  // are decoded from the console code page, so a program that ignores `chcp`
+  // still yields readable text.
   std::string output;
 
   // True when more output than the cap arrived and the middle was dropped.
