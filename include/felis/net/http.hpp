@@ -40,6 +40,11 @@ using BodyHandler = std::function<bool(std::string_view chunk)>;
 // three-minute read window and summariser requests a seven-minute one, because
 // a reasoning model can stream nothing for minutes before it emits its first
 // event.
+//
+// `allow_self_signed` turns off peer certificate verification. It exists for a
+// user who deliberately points an assistant at a server with a self-signed
+// certificate; every transport shares this code, so the trust decision must be
+// made explicitly by the caller and defaults to off.
 int http_request(
     std::string_view method,
     const std::string& url,
@@ -51,7 +56,8 @@ int http_request(
     const BodyHandler& on_body,
     int inactivity_timeout_ms = 60'000,
     int max_redirects = 0,
-    int read_timeout_ms = 0
+    int read_timeout_ms = 0,
+    bool allow_self_signed = false
 );
 
 using HttpStatus = int;
@@ -64,13 +70,17 @@ using HttpStatus = int;
 // `read_timeout_ms` bounds each wait for response headers or body bytes; 0 uses
 // the 20-second default. A local service that drives a real browser needs a
 // longer window, because its first answer includes starting that browser.
+//
+// `allow_self_signed` is forwarded to `http_request`; see there for when it is
+// appropriate.
 [[nodiscard]] std::expected<std::string, HttpStatus> http_get_body(
     const std::string& url,
     const std::optional<std::string>& proxy,
     int max_bytes,
     std::stop_token stop = std::stop_token{},
     const std::vector<HttpHeader>& extra_headers = {},
-    int read_timeout_ms = 20'000
+    int read_timeout_ms = 20'000,
+    bool allow_self_signed = false
 );
 
 }

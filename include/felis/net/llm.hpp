@@ -109,6 +109,9 @@ struct Failure {
 // inactivity window). The stop token is observed throughout, so cancelling stays
 // responsive regardless of the read window.
 //
+// `allow_self_signed` disables peer certificate verification for this request
+// only, for an assistant whose user trusts a self-signed endpoint.
+//
 // On any failure no result is returned; the reason (including the captured start
 // of an error body) is carried in `Failure`. Callers must discard any text they
 // already received through `on_text` on failure, except that a cancellation also
@@ -122,7 +125,8 @@ struct Failure {
     std::stop_token stop_token,
     int inactivity_timeout_ms,
     int read_timeout_ms,
-    const StreamCallbacks& callbacks
+    const StreamCallbacks& callbacks,
+    bool allow_self_signed = false
 );
 
 } // namespace felis::llm

@@ -701,7 +701,8 @@ std::expected<Result, Failure> stream_request(
     std::stop_token stop_token,
     int inactivity_timeout_ms,
     int read_timeout_ms,
-    const StreamCallbacks& callbacks
+    const StreamCallbacks& callbacks,
+    bool allow_self_signed
 ) {
   if (stop_token.stop_requested()) {
     return std::unexpected(Failure{FailureKind::Cancelled, "Generation cancelled"});
@@ -777,7 +778,7 @@ std::expected<Result, Failure> stream_request(
   try {
     status = net::http_request(
         "POST", url, proxy, headers, body, stop_token, on_response, on_body,
-        inactivity_timeout_ms, 0, read_timeout_ms
+        inactivity_timeout_ms, 0, read_timeout_ms, allow_self_signed
     );
   } catch (const std::exception& error) {
     flush();

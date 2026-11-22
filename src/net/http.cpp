@@ -683,7 +683,7 @@ int felis::net::http_request(
     const std::vector<HttpHeader>& headers, const std::string& body,
     std::stop_token stop, const ResponseHandler& on_response,
     const BodyHandler& on_body, int inactivity_timeout_ms, int max_redirects,
-    int read_timeout_ms
+    int read_timeout_ms, bool allow_self_signed
 ) {
   std::optional<felis::net::Proxy> proxy;
 
@@ -703,7 +703,12 @@ int felis::net::http_request(
 
     asio::io_context ioc;
     asio::ssl::context ssl_context(asio::ssl::context::tls_client);
-    ssl_context.set_verify_mode(asio::ssl::verify_peer);
+
+    // Verification is the default for every caller, including web search. Only an
+    // assistant the user marked as trusting a self-signed server turns it off.
+    ssl_context.set_verify_mode(
+        allow_self_signed ? asio::ssl::verify_none : asio::ssl::verify_peer
+    );
 
 #ifdef _WIN32
     // Honour SSL_CERT_FILE/SSL_CERT_DIR when they are set, then add the system
@@ -816,7 +821,7 @@ int felis::net::http_request(
 std::expected<std::string, felis::net::HttpStatus> felis::net::http_get_body(
     const std::string& url, const std::optional<std::string>& proxy, int max_bytes,
     std::stop_token stop, const std::vector<HttpHeader>& extra_headers,
-    int read_timeout_ms
+    int read_timeout_ms, bool allow_self_signed
 ) {
   std::vector<HttpHeader> headers{
       {"User-Agent", "Mozilla/5.0 (compatible; local-notebook/1.0)"},
@@ -861,7 +866,7 @@ std::expected<std::string, felis::net::HttpStatus> felis::net::http_get_body(
 
   const int status = http_request(
       "GET", url, proxy, headers, "", stop, on_response, on_body, 20'000, 5,
-      read_timeout_ms
+      read_timeout_ms, allow_self_signed
   );
 
   if (status < 200 || status >= 300) {
